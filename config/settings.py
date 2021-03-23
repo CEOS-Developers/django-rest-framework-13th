@@ -13,14 +13,27 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+import json
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+with open(os.path.join(BASE_DIR, 'secrets.json'), 'rb') as secret_file:
+    secrets = json.load(secret_file)
+
+# Keep secret keys in secrets.json
+def get_secret(setting, secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = "Set the {0} environment variable".format(setting)
+        # raise ImproperlyConfigured(error_msg)
+
+SECRET_KEY = get_secret("SECRET_KEY")
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '$3lnvr^j!y&va=es7(+li0imv2*lw-luxcbxuzjv)29f^ld4gg'
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -73,12 +86,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
+DATABASES = secrets['DB_SETTINGS']
 
 
 # Password validation
