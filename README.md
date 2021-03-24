@@ -8,7 +8,7 @@
 
 !\[img.png\](img.png)  
 인스타그램에 대해 본인이 작성한 모델들에 대한 설명과 모델 간의 관계 등을 적어주세요!  
-![img_1.png](img_1.png)
+
 
 **작성한 모델**
 
@@ -157,6 +157,8 @@ python manage.py migrate
   Running migrations:
   Applying api.0002_auto_20210324_0648... OK
 ```
+![img_1.png](img_1.png)
+
 
 #### **ORM 적용해보기**
 
@@ -179,6 +181,9 @@ Post.objects.all()
 Post.objects.filter(goods = 30)
 <QuerySet [<Post: hihi>]>
 ```
+
+![img_2.png](img_2.png)
+
 
 #### **간단한 회고**
 
