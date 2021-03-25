@@ -6,10 +6,12 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=32,default='')
     phone = models.CharField(max_length=32)
+    email = models.EmailField(max_length=254, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True)
     website = models.TextField(max_length=100, blank=True, null=True)
-    profile_name = models.TextField(max_length=32, blank=True, null=True)
+    profile_name = models.CharField(max_length=32, blank=True, null=True)
     gender = models.CharField(max_length=10, null=True)
     birth = models.DateField(blank=True, null=True)
     photo = models.ImageField(upload_to="profileImages", null=True)
