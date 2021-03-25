@@ -1,17 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 # Create your models here.
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE )
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=32)
-    bio = models.TextField(max_length=500, blank=True, NULL=True)
-    website = models.TextField(max_length=100, blank=True, NULL=True)
-    profile_name = models.TextField(max_length=32, blank=True, NULL=True)
-    gender = models.CharField(max_length=10, NULL=True)
-    birth = models.DateField(null=True, blank=True)
-    photo = models.ImageField(upload_to="profileImages")
+    bio = models.TextField(max_length=500, blank=True, null=True)
+    website = models.TextField(max_length=100, blank=True, null=True)
+    profile_name = models.TextField(max_length=32, blank=True, null=True)
+    gender = models.CharField(max_length=10, null=True)
+    birth = models.DateField(blank=True, null=True)
+    photo = models.ImageField(upload_to="profileImages", null=True)
+
+
 """
 class follow(models.Model):
 
