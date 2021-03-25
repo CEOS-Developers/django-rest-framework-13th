@@ -1,4 +1,3 @@
-from django.contrib.auth.base_user import BaseUserManager
 from django.db import models
 from django.contrib.auth.models import User, AbstractUser
 
@@ -9,16 +8,19 @@ from django.dispatch import receiver
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-    name = models.CharField(max_length=32, default='')
-    phone = models.CharField(max_length=32, null=True)
+    username = models.CharField(max_length=100, default='', unique=True)
+    password = models.CharField(max_length=50, default='')
     email = models.EmailField(max_length=254, null=True)
+    phone = models.CharField(max_length=32, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True)
     website = models.TextField(max_length=100, blank=True, null=True)
     profile_name = models.CharField(max_length=32, blank=True, null=True)
     gender = models.CharField(max_length=10, null=True)
     birth = models.DateField(blank=True, null=True)
     photo = models.ImageField(upload_to="profileImages", null=True)
+
+    def __str__(self):
+        return self.username
 
     # email and phone cannot be both null
     class Meta:
@@ -28,7 +30,7 @@ class Profile(models.Model):
                 name='not_both_null'
             )
         ]
-
+    """
     @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
@@ -37,6 +39,7 @@ class Profile(models.Model):
     @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
+    """
 
 
 # related name is used to make two fks from one table
@@ -50,6 +53,9 @@ class Post(models.Model):
     text = models.TextField(max_length=500, blank=True, null=True)
     createdDate = models.DateField(auto_now_add=True)
     updatedDate = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return self.text
 
 
 class Comment(models.Model):
