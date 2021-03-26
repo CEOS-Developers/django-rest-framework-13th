@@ -12,6 +12,15 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 
+import json
+
+# 해당 파일의 절대 경로에서 디렉터리 경로를 가져와 BASE_DIR에 저장
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 해당 파일의 경로에 있는 secrets.json을 여는 행동을 secret_file에 저장
+with open(os.path.join(BASE_DIR, 'secrets.json', 'rb')) as secret_file:
+    secrets = json.load(secret_file) #secrets라는 변수에 secrets.json 내용 저장
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -80,7 +89,8 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
+# secrets.json에 있는 DB_SETTONGS를 데이터베이스로 사용
+DATABASES = secrets['DB_SETTINGS']
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
