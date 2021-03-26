@@ -18,12 +18,11 @@ import json
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # 해당 파일의 경로에 있는 secrets.json을 여는 행동을 secret_file에 저장
-with open(os.path.join(BASE_DIR, 'secrets.json', 'rb')) as secret_file:
-    secrets = json.load(secret_file) #secrets라는 변수에 secrets.json 내용 저장
+with open(os.path.join(BASE_DIR, 'secrets.json'), 'rb') as secret_file:
+    secrets = json.load(secret_file)  # secrets라는 변수에 secrets.json 내용 저장
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -35,7 +34,6 @@ SECRET_KEY = '$3lnvr^j!y&va=es7(+li0imv2*lw-luxcbxuzjv)29f^ld4gg'
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -79,7 +77,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
@@ -110,7 +107,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -123,7 +119,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
