@@ -4,7 +4,8 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):  # 사용자 모델
 
-    gender_choices = (("male", "female"), ("custom", "None")) # Profile.gender의 선택 사항을 저장항 튜플
+    gender_choices = (
+        ('male', 'male'), ('female', 'female'), ('custom', 'custom'), ('None', 'None'))  # Profile.gender의 선택 사항을 저장항 튜플
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # User 모델에서 OneToOne 확장
     name = models.CharField(max_length=100)  # 사용자의 이름, 중복가능, 글자수 제한 100
