@@ -29,6 +29,19 @@ class User(AbstractBaseUser):
 -   is\_professional : 공식계정인지를 확인하는 필드
     -   대부분 아니므로 default : False 를 설정한다. )
 
+```
+AbstractUser : 
+장고에서 미리 제공하는 유저 모델. 상속해서 사용할 수 있다
+id / password / last_login / is_superuser /
+username / first_name / last_name / email / is_staff / is_active / date_joined
+
+AbstractBaseUser : 
+AbstractBaseUser의 간단한 버전,
+id / password / last_login
+```
+
+
+
 2\. Profile : 유저의 세부 정보를 담는 모델. User모델과 1:1 로 관계를 맺고 있다. 
 
 \# CASCADE : ForeignKeyField가 바라보는 값이 삭제될 때 ForeignKeyField를 포함하는 모델 인스턴스(row)도 삭제된다.
@@ -105,6 +118,7 @@ class PostComment(models.Model):
 -   author : 댓글 작성한 사람
 -   content : 댓글 내용
 -   upload\_at : 올린 시간
+-   goods : 댓글 좋아요 개
 
 6\. PostCommentReply : 게시글에 작성된 댓글의 대댓글을 담은 모델
 
