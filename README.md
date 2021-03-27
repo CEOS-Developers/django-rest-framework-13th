@@ -28,9 +28,6 @@ Constraints는 다음과 같이 작동합니다
 -save() 되지 않음
 ![wrongProfileError](./readmeImg/wrongProfileError.JPG)
 
-** 장고에서 제공하는 User 또는 Customized User를 이용해보려 했으나, user data create 시에 알 수 없는 에러들이 계속 나서
-일단 일반적인 형태의 model로 user model을 작성했습니다. 추후 더 공부해보겠습니다**
-
 ####Follow
 User 와 one to many 관계. 팔로우관계를 일방적인 형태로 저장.
 
@@ -67,4 +64,6 @@ parent_id는 댓글의 hierarchy 구성을 위해 넣어줬는데 포스트에 �
 ![filter](./readmeImg/filter.JPG)
 
 ### 간단한 회고
-과제기한까지 User model 문제를 해결못해서 아쉽네요ㅠㅠㅠ 남은 기간동안 공부 더 해서 수정해서 올리겠습니다.!
+Abstract Base User 를 활용하여 유저모델을 확장하고 oneToOneField로 Profile과
+1대 1관계를 맺는 것으로 수정하였습니다.   
+유저모델과 추후 authentication까지 좀 더 깊이 공부해보아야 할 것 같습니다. 뭔가 공부할수록 모르는게 더 늘어나는 느낌!ಥ_ಥ
