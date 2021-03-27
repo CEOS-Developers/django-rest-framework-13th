@@ -41,4 +41,9 @@ class Media(models.Model):  # 미디어 모델 (포스트에 들어가는 사진
 
 class PeopleTag(models.Model):  # 피플태그 모델 (각각의 사진/동영상에 추가되는 이용자 태그)
     media = models.ForeignKey('Media', on_delete=models.CASCADE)  # Media 모델과 1:N 관계
-    tagged_user = models.CharField(max_length=30, null=True)  # 태그 된 사용자의 Profile.nickname 을 받음
+    name = models.CharField('tagged_name', max_length=30, null=True)  # 태그 된 사용자의 Profile.nickname 을 받음
+
+
+class HashTag(models.Model): # 해시태그 모델 (게시글에 등록되는 해시태그 모델)
+    post = models.ForeignKey('Post', on_delete=models.CASCADE) # Post 모델과 1:N 관계
+    name = models.CharField('hashtag', max_length=2200)  # 게시글에 추가된 해시태그 명, 글자수 제한 2200
