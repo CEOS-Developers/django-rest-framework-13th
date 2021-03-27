@@ -42,6 +42,7 @@ class Post(models.Model):
 # 인스타 이미지
 class Images(models.Model):
     post = models.ForeignKey(Post, blank=False, null=False, on_delete=models.CASCADE)
+    index = models.PositiveIntegerField()
     content = models.TextField()
 
 

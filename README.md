@@ -103,6 +103,7 @@ class Images(models.Model):
 
 -   post : 해당하는 게시글
 -   content : 이미지 url주소
+-   index : 이미지 순서
 
 5\. PostComment : 게시글에 작성된 댓글을 담은 모델
 
