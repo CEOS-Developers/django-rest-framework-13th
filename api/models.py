@@ -28,11 +28,17 @@ class Post(models.Model):  # 포스트 모델
     content = models.CharField(max_length=2200)  # 게시글의 내용, 글자수 제한 2200
     location = models.CharField(max_length=None)  # 게시글에 추가할 수 있는 위치정보
     ratio = models.CharField(choices=ratio_choices, max_length=None, blank=False)  # 게시되는 이미지/비디오의 비율, 필수 선택
-    comment_permission = models.CharField(choices=('Yes', 'No'), max_length=None, blank=False)  # 게시물에 댓글 기능 사용 여부, 필수 선택
+    comment_permission = models.CharField(choices=('Yes', 'No'), max_length=None,
+                                          blank=False)  # 게시물에 댓글 기능 사용 여부, 필수 선택
 
 
-class Media(models.Model):  # 미디어 모델
+class Media(models.Model):  # 미디어 모델 (포스트에 들어가는 사진/동영상)
 
     post = models.ForeignKey('Post', on_delete=models.CASCADE)  # Post 모델과 1:N 관계
     upload = models.FileField(upload_to='posts', blank=False, unique=True)  # 업로드된 사진 및 동영상, 필수 입력, 중복 불가능
     subs_text = models.CharField('substitutional text', max_length=2200)  # 사진/영상 별 대체 텍스트 입력, 글자수 제한 2200
+
+
+class PeopleTag(models.Model):  # 피플태그 모델 (각각의 사진/동영상에 추가되는 이용자 태그)
+    media = models.ForeignKey('Media', on_delete=models.CASCADE)  # Media 모델과 1:N 관계
+    tagged_user = models.CharField(max_length=30, null=True)  # 태그 된 사용자의 Profile.nickname 을 받음
