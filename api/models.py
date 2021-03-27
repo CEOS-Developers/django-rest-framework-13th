@@ -66,15 +66,18 @@ class Profile(models.Model):
             )
         ]
 
+    def __str__(self):
+        return self.user.username
+
 
 # related name is used to make two fks from one table
 class Follow(models.Model):
-    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='user_id')
-    following_id = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='following_id')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='user_id', default='')
+    following = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='following_id', default='')
 
 
 class Post(models.Model):
-    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='')
     text = models.TextField(max_length=500, blank=True, null=True)
     createdDate = models.DateField(auto_now_add=True)
     updatedDate = models.DateField(blank=True, null=True)
@@ -84,14 +87,14 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='')
     text = models.TextField(max_length=500, blank=True, null=True)
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     parent_id = models.IntegerField()
 
 
 class Like(models.Model):
-    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True)
     comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True)
 
