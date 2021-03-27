@@ -124,3 +124,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# 미디어 파일을 관리할 루트 media directory
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# 미디어 파일에 대한 URL prefix
+MEDIA_URL = '/media/'
