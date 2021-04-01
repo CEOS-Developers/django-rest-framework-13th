@@ -16,11 +16,11 @@ class HashTagSerializer(serializers.ModelSerializer):  # HashTag model serialize
 
 
 class MediaSerializer(serializers.ModelSerializer):  # Media model serializer
-    peopletags = PeopleTagSerializer(many=True)
+    peopletags = PeopleTagSerializer(many=True)  # Media - PeopleTag : ForeignKey
 
     class Meta:
         model = Media
-        fields = ['upload', 'subs_text', 'peopletags']  # all fields in Media and PeopleTag model
+        fields = ['id', 'upload', 'subs_text', 'peopletags']  # all fields in Media and PeopleTag model
 
 
 class PostSerializer(serializers.ModelSerializer):  # Post model serializer
@@ -29,7 +29,7 @@ class PostSerializer(serializers.ModelSerializer):  # Post model serializer
 
     class Meta:
         model = Post
-        fields = ['pub_date', 'content', 'location', 'location', 'ratio', 'comment_permission', 'medias', 'hashtags']
+        fields = ['id', 'pub_date', 'content', 'location', 'location', 'ratio', 'comment_permission', 'medias', 'hashtags']
         # all fields in Post, Media and Hashtag model
 
 
@@ -38,7 +38,7 @@ class ProfileSerializer(serializers.ModelSerializer):  # Profile model serialize
 
     class Meta:
         model = Profile
-        fields = ['user', 'name', 'nickname', 'intro', 'profile_image', 'website', 'email', 'phone', 'birthday',
+        fields = ['id', 'user', 'name', 'nickname', 'intro', 'profile_image', 'website', 'email', 'phone', 'birthday',
                   'gender', 'posts']  # all fields in Profile and Post model
 
 
@@ -47,4 +47,4 @@ class UserSerializer(serializers.ModelSerializer):  # User model serializer
 
     class Meta:
         model = User
-        fields = 'username'  # username field 만 serialize
+        fields = ['username', 'profile']  # username field 만 serialize
