@@ -86,7 +86,6 @@ class Post(models.Model):
         return self.text
 
 
-
 class Comment(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='')
     text = models.TextField(max_length=500, blank=True, null=True)
