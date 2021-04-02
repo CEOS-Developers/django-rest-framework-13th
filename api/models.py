@@ -77,7 +77,7 @@ class Follow(models.Model):
 
 
 class Post(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='')
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default='', related_name='posts')
     text = models.TextField(max_length=500, blank=True, null=True)
     createdDate = models.DateField(auto_now_add=True)
     updatedDate = models.DateField(blank=True, null=True)

@@ -24,7 +24,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    posts = serializers.RelatedField(source='user', read_only=True)
+    posts = PostSerializer(many=True, read_only=True)
 
     class Meta:
         model = CustomUser  # 사용할 모델
