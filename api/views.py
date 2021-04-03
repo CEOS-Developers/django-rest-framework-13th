@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from .models import CustomUser, Profile, Post
-from .serializers import CustomUserSerializer, ProfileSerializer, PostSerializer
+from .models import User, Profile, Post
+from .serializers import UserSerializer, ProfileSerializer, PostSerializer
 from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework.response import Response

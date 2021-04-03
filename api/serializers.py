@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.relations import StringRelatedField
 
-from .models import CustomUser, Profile, Post
+from .models import User, Profile, Post
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -23,11 +23,11 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['text', 'user_id']
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     posts = PostSerializer(many=True, read_only=True)  # use related name
 
     class Meta:
-        model = CustomUser  # 사용할 모델
+        model = User  # 사용할 모델
         fields = ['id', 'username', 'posts']
 
 
