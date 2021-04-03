@@ -11,9 +11,10 @@ class Profile(models.Model):
     website = models.TextField(max_length=100, blank=True)
     bio = models.TextField(max_length=500, blank=True)
     profile_img = models.ImageField(blank=True, upload_to="profile_img")  # save to media/profile_img
-    post_num = models.IntegerField(default=0)
-    follower_num = models.IntegerField(default=0)
-    following_num = models.IntegerField(default=0)
+
+    # post_num = models.IntegerField(default=0)
+    # follower_num = models.IntegerField(default=0)
+    # following_num = models.IntegerField(default=0)
 
     def __str__(self):
         return self.user.username
@@ -33,21 +34,21 @@ class Post(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
     text = models.TextField(max_length=500, blank=True)
-    like_num = models.IntegerField(default=0)
-    comment_num = models.IntegerField(default=0)
-    media_num = models.IntegerField(default=1)  # at least one media
+    # like_num = models.IntegerField(default=0)
+    # comment_num = models.IntegerField(default=0)
+    # media_num = models.IntegerField(default=1)  # at least one media
 
     # Add (a post requires at least one media)
-    media_file = models.FileField(upload_to="post_media")  # first/thumbnail media, save to media/post_media
+    media_file = models.FileField(null=True, upload_to="post_media")  # first/thumbnail media, save to media/post_media
     is_video = models.BooleanField()  # file can be either img or vid
 
     def __str__(self):
-        return 'post: {} by {}'.format(self.text, self.profile.user.username)
+        return 'post{}, {} by {}'.format(self.id, self.text, self.profile.user.username)
 
 
 class Media(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="media")
-    media_num = models.IntegerField()  # num of media in the post 12~10
+    media_idx = models.IntegerField()  # idx of media in the post 12~10
     media_file = models.FileField(upload_to="post_media")  # save to media/post_media
     is_video = models.BooleanField()  # file can be either img or vid
 
@@ -63,7 +64,7 @@ class Comment(models.Model):
     text = models.TextField(max_length=500, blank=True)
 
     def __str__(self):
-        return 'comment: {} on post: {} by {}'.format(self.text, self.post.text, self.profile.user.username)
+        return 'comment: {} on post{} by {}'.format(self.text, self.post.id, self.profile.user.username)
 
 
 class Like(models.Model):

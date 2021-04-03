@@ -183,3 +183,277 @@ shell에서 작성한 코드와 그 결과를 보여주세요!
 
 * 좋은 프로그래머들이 작성한 다양한 데이터 모델링 코드를 본다.
 * 헷갈리는 Relation 개념에 대해 추가 공부를 한다.
+
+
+## 3주차 과제 (기한: 4/1 목요일까지)
+### 모델 선택 및 데이터 삽입
+선택한 모델의 구조와 데이터 삽입 후의 결과화면을 보여주세요!
+
+```python
+class Post(models.Model):
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="posts")
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+    text = models.TextField(max_length=500, blank=True)
+
+    # Add (a post requires at least one media)
+    media_file = models.FileField(upload_to="post_media")  # first/thumbnail media, save to media/post_media
+    is_video = models.BooleanField()  # file can be either img or vid
+
+    def __str__(self):
+        return 'post{}, {} by {}'.format(self.id, self.text, self.profile.user.username)
+
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="comments")
+    create_date = models.DateTimeField(auto_now_add=True)
+    update_date = models.DateTimeField(auto_now=True)
+    text = models.TextField(max_length=500, blank=True)
+
+    def __str__(self):
+        return 'comment: {} on post{} by {}'.format(self.text, self.post.id, self.profile.user.username)
+```
+
+
+```python
+>>> Post.objects.all()
+<QuerySet 
+[<Post: post1, This is the picture of me with my pet dog by user1>, 
+<Post: post2, An old family video of my childhood! by user1>, 
+<Post: post3, I went to DisneyLand! Miss those times...:( by user1>]>
+
+>>> Comment.objects.all()
+<QuerySet 
+[<Comment: comment: Looking good! on post1 by user2>, 
+<Comment: comment: Your dog is so cute >_< on post1 by user2>]>
+
+```
+* 3개의 post, post1에 달린 2개의 comment
+
+```python
+class CommentSerializer(serializers.ModelSerializer):
+    profile_username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['profile_username', 'text', 'create_date', 'post']
+
+    def get_profile_username(self, obj):
+        return obj.profile.user.username
+
+
+class LikeSerializer(serializers.ModelSerializer):
+    profile_username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Like
+        fields = ['profile_username', 'like_date', 'post']
+
+    def get_profile_username(self, obj):
+        return obj.profile.user.username
+
+
+class PostSerializer(serializers.ModelSerializer):
+    # nested Serializer
+    comments = CommentSerializer(many=True, read_only=True)
+    likes = LikeSerializer(many=True, read_only=True)
+    profile_username = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = ['id', 'profile_username', 'media_file', 'is_video', 'text', 'create_date', 'comments', 'likes']
+
+    def get_profile_username(self, obj):
+        return obj.profile.user.username
+```
+
+* nested serializer로 post의 comments, likes까지 serialize
+* 알아보기 쉽도록, serializer method field로 post 작성자의 username 가져옴
+* fields에 '\_\_all\_\_'을 작성했다가, 인스타그램을 참고해서 노출되는 필드만을 설정
+
+### 모든 list를 가져오는 API
+```python
+# api/views.py
+
+@csrf_exempt
+def post_list(request):
+    # view data
+    if request.method == 'GET':
+        post = Post.objects.all()  # get queryset of the Post
+        serializer = PostSerializer(post, many=True)  # Serialize it to python native data type
+        return JsonResponse(serializer.data, safe=False)  # response with JSON
+
+```
+  
+* **JsonResponse**: dictionary, list 등 python data type을 JSON 형식으로 변환
+  변환할 데이터가 dictionary가 아닌 경우 ```safe=False``` 설정 
+* **CSRF(Cross Site Request Forgery)**: 사용자의 의지와 무관하게 request에 요청을 보내도록 하는 해킹 수법, Django에서는 CSRF방어를 내장기능으로 지원하고 있음
+* `````@csrf_exempt````` : 개발 시 불편함을 해결하기 위해 함수 상단에 작성해, CSRF 방어 해제 
+
+
+
+```python
+# api/urls.py
+
+urlpatterns = [
+    path('posts/', views.post_list)
+]
+```
+```python
+# config/urls.py
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),
+]
+```
+* **include()**: 일치하는 문자열 자르고, 뒤 문자열은 api의 url conf로 전달
+* ```/api/posts/```가 되면 views.py의 post_list() 호출 
+
+<API 요청 결과>
+* URL: ```api/posts/```
+* Method: ```GET```
+
+```json
+[
+    {
+        "id": 1,
+        "profile_username": "user1",
+        "media_file": null,
+        "is_video": false,
+        "text": "This is the picture of me with my pet dog",
+        "create_date": "2021-03-25T16:28:53.833162+09:00",
+        "comments": [
+            {
+                "profile_username": "user2",
+                "text": "Looking good!",
+                "create_date": "2021-03-31T18:42:36.646261+09:00",
+                "post": 1
+            },
+            {
+                "profile_username": "user2",
+                "text": "Your dog is so cute >_<",
+                "create_date": "2021-03-31T18:43:28.014466+09:00",
+                "post": 1
+            }
+        ],
+        "likes": []
+    },
+    {
+        "id": 2,
+        "profile_username": "user1",
+        "media_file": null,
+        "is_video": true,
+        "text": "An old family video of my childhood!",
+        "create_date": "2021-03-25T16:30:49.907742+09:00",
+        "comments": [],
+        "likes": []
+    },
+    {
+        "id": 3,
+        "profile_username": "user1",
+        "media_file": null,
+        "is_video": false,
+        "text": "I went to DisneyLand! Miss those times...:(",
+        "create_date": "2021-03-25T16:31:42.307405+09:00",
+        "comments": [],
+        "likes": []
+    }
+]
+```
+* 모든 post의 list를 가져오는 API 요청 
+
+
+### 새로운 데이터를 create하도록 요청하는 API
+
+
+```python
+# api/views.py
+
+def post_list(request):
+  ...
+    # add data
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)  # parse the JSON data
+        serializer = PostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()  # save to DB
+            return JsonResponse(serializer.data, status=201)
+        return JsonResponse(serializer.errors, status=400)
+```
+
+* 파싱한 JSON data를 받아서 deserialize한 후 valid data 체킹 
+* 잘 설계된 REST API는 URI만 잘 설계된 것이 아닌 그 리소스에 대한 응답을 잘 내어주는 것도 포함 
+* **201 상태 코드**: 클라이언트가 어떠한 리소스 생성을 요청, 해당 리소스가 성공적으로 생성됨(POST를 통한 리소스 생성 작업 시)
+* **400 상태 코드**: 클라이언트의 요청이 부적절 할 경우 사용하는 응답 코드
+
+
+<API 요청 결과>
+* URL: ```api/posts/```
+* Method: ```POST```
+* Body:```
+   {
+        "profile_username": "user1",
+        "text": "I am studying at a cafe, right now",
+        "is_video": false,
+        "media_file" : null,
+        "profile" : 1
+    }```
+
+
+
+```json
+{
+      "id": 4,
+      "profile_username": "user1",
+      "media_file": null,
+      "is_video": false,
+      "text": "I am studying at a cafe, right now",
+      "create_date": "2021-04-01T17:42:45.143591+09:00",
+      "comments": [],
+      "likes": []
+}
+```
+
+
+
+### 공부한 내용 정리
+
+
+#### [GET]
+* GET은 서버로부터 정보를 조회하기 위해 설계된 메소드
+* GET은 요청을 전송할 때 필요한 데이터를 Body에 담지 않고, 쿼리스트링(URL의 끝에 ?와 함께 이름과 값으로 쌍을 이루는 요청 파라미터)
+)을 통해 전송
+  
+* 데이터 이동이 없을 때, DB에 영향을 주지 않을 때 주로 사용, 따로 설정하지 않으면 항상 GET 요청 사용 
+* **Idempotent** : GET은 설계원칙에 따라 서버의 데이터나 상태를 변경시키지 않아야하기 때문에 주로 조회를 할 때에 사용
+
+
+
+
+
+
+#### [POST]
+* POST는 리소스를 생성/변경하기 위해 설계되어 전송해야될 데이터를 HTTP 메세지의 Body에 담아서 전송
+* Body는 길이의 제한이 없어 POST 요청은 대용량 데이터를 전송하는데 적합
+* DB에 영향을 줄 때나, URL에 노출이 되면 안전하지 못한 데이터를 전송할 때 사용
+* 따로 POST 방식으로 설정해야 사용할 수 있음
+* **Non-idempotent** : 서버에게 동일한 요청을 여러 번 전송해도 응답은 항상 다를 수 있어서 서버의 상태나 데이터를 변경시킬 때 사용
+
+
+
+[**[출처]**](https://blog.naver.com/astro0/222293557953)
+
+### 간단한 회고
+
+실습 자체는 예시 코드를 참고할 수 있어서 어렵지 않았지만 Serialize, REST 라는 개념이 확 와닿지 않았다. 
+이해도를 높일 수 있는 좋은 블로그 글을 찾았고, 전반적으로 웹 서비스가 어떻게 돌아가는지 이해할 수 있었다.
+
+[**[참고한 블로그]**](https://post.naver.com/viewer/postView.nhn?volumeNo=30717005&memberNo=6457418&vType=VERTICAL)
+
+* 서버와 클라이언트가 소통할 때는 API를 사용하고, API의 파일 형식은 JSON, 개발자들 사이에서 규격화된 API의 형식이 REST(GET, POST)이다. 
+* python 기반인 django 서버에서는 클라이언트한테 보내는 데이터를 python data type으로 Serialize(변환?)하고, Serialize된 데이터를 JSON으로 렌더링해서 클라이언트에게 보내준다. 
+* 반대로 클라이언트에게서 데이터를 받는 경우에는 JSON을 파싱한 후, Deserialize해서 DB에 이를 저장한다.
+
+
