@@ -3,13 +3,51 @@ from django.utils import timezone
 from django.contrib.auth.models import (BaseUserManager, AbstractBaseUser)
 
 
-# User 모델
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def create_user(self, nickname, password=None):
+        if not nickname:
+            raise ValueError('must have user nickname')
+        user = self.model(
+            nickname=nickname
+        )
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, nickname, password):
+        user = self.create_user(
+            nickname=nickname,
+            password=password
+        )
+        user.is_admin = True
+        user.is_superuser = True
+        user.is_staff = True
+        user.save(using=self._db)
+        return user
+
+    # User 모델
+
+
 class User(AbstractBaseUser):
-    username = models.CharField(max_length=255)
-    USERNAME_FIELD = 'username'
+    objects = UserManager()
+
+    CHOICE_GENDER = (
+        ('man', '남성'),
+        ('woman', '여성')
+    )
+    username = models.CharField(max_length=255, null=False, unique=True)
     insta_id = models.CharField(max_length=255, unique=True, )
     is_professional = models.BooleanField(default=False)
+    gender = models.CharField(max_length=5, choices=CHOICE_GENDER)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
 
+    USERNAME_FIELD = 'username'
+    REQUIRED_FIELDS = ['username']
 
 # Profile
 class Profile(models.Model):
