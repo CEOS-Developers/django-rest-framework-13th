@@ -96,20 +96,23 @@ http://127.0.0.1:8000/api/users/ 로 post 요청
 
 
 ###새로 알게된 점
+https://gaussian37.github.io/python-rest-nested-serializer/
 serializers.py에서 nested serialize를 구현할 때 'related name'이 중요합니다!!
-1. related name을 사용했을 경우
+#### related name을 사용했을 경우
 ```python
-class CustomUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     posts = PostSerializer(many=True, read_only=True)  # use related name
 
     class Meta:
-        model = CustomUser  # 사용할 모델
-        fields = ['id', 'username', 'posts']
+        model = User  # 사용할 모델
+        fields = ['username', 'password', 'email', 'posts', 'Profile_set']
+
 ```
 nest하고자 하는 serializer의 변수명을 related name으로 써주고, fields에 추가합니다.
 
-2 related name을 사용하지 않을 경우
-따로 PostSerializer을 할당받지 않고 fileds에 'post_set' 을 추가하여 사용가능합니다.
+####related name을 사용하지 않을 경우
+따로 PostSerializer을 할당받지 않고 fileds에 'post_set' 을 추가하여 사용가능합니다.  
+(그런데 저는 field name ~ is not valid for model ~ 에러났습니다.ㅎㅎ.. related name을 써주는 게 좋을 것 같아요)
 
 ###간단한 회고
 포스트 모델에 post할때 fk에 해당하는 user_id가 json으로 렌더링 될 때 null값으로 변해버리는 것을 아직 해결하지 못했습니다.  

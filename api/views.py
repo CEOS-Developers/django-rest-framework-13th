@@ -33,7 +33,7 @@ def profilesList(request):
     if request.method == 'GET':
         profiles = Profile.objects.all()
         serializer = ProfileSerializer(profiles, many=True)
-        return JsonResponse(serializer.data)
+        return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
@@ -46,13 +46,13 @@ def profilesList(request):
 
 def usersList(request):
     if request.method == 'GET':
-        users = CustomUser.objects.all()
-        serializer = CustomUserSerializer(users, many=True)
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
         return JsonResponse(serializer.data, safe=False)
 
     elif request.method == 'POST':
         data = JSONParser().parse(request)
-        serializer = CustomUserSerializer(data=data)
+        serializer = UserSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=201)
