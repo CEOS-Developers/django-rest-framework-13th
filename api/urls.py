@@ -3,12 +3,12 @@ from .views import UserViewSet, PostViewSet
 
 user_list = UserViewSet.as_view({
     'get': 'list',
-    'put': 'create'
+    'post': 'create'
 })
 
 post_list = PostViewSet.as_view({
     'get': 'list',
-    'put': 'create'
+    'post': 'create'
 })
 
 urlpatterns = [
