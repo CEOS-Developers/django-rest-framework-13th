@@ -24,7 +24,7 @@ class Post(models.Model):  # 포스트 모델
 
     ratio_choices = (('origin', 'Original'), ('square', 'square'))  # Post.ratio 의 선택 항목
 
-    profile = models.ForeignKey('Profile', on_delete=models.CASCADE)  # Profile 모델과 1:N 관계
+    profile = models.ForeignKey('Profile', on_delete=models.CASCADE, related_name='posts')  # Profile 모델과 1:N 관계
     pub_date = models.DateTimeField('published date', auto_now_add=True)  # 포스팅 시 생성 날짜 저장
     content = models.CharField(max_length=2200)  # 게시글의 내용, 글자수 제한 2200
     location = models.CharField(max_length=150)  # 게시글에 추가할 수 있는 위치정보
@@ -35,16 +35,16 @@ class Post(models.Model):  # 포스트 모델
 
 class Media(models.Model):  # 미디어 모델 (포스트에 들어가는 사진/동영상)
 
-    post = models.ForeignKey('Post', on_delete=models.CASCADE)  # Post 모델과 1:N 관계
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='medias')  # Post 모델과 1:N 관계
     upload = models.FileField(upload_to='posts', blank=False, unique=True)  # 업로드된 사진 및 동영상, 필수 입력, 중복 불가능
     subs_text = models.CharField('substitutional text', max_length=2200)  # 사진/영상 별 대체 텍스트 입력, 글자수 제한 2200
 
 
 class PeopleTag(models.Model):  # 피플태그 모델 (각각의 사진/동영상에 추가되는 이용자 태그)
-    media = models.ForeignKey('Media', on_delete=models.CASCADE)  # Media 모델과 1:N 관계
+    media = models.ForeignKey('Media', on_delete=models.CASCADE, related_name='peopletags')  # Media 모델과 1:N 관계
     name = models.CharField('tagged_name', max_length=30, null=True)  # 태그 된 사용자의 Profile.nickname 을 받음
 
 
 class HashTag(models.Model):  # 해시태그 모델 (게시글에 등록되는 해시태그 모델)
-    post = models.ForeignKey('Post', on_delete=models.CASCADE)  # Post 모델과 1:N 관계
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='hashtags')  # Post 모델과 1:N 관계
     name = models.CharField('hashtag', max_length=2200)  # 게시글에 추가된 해시태그 명, 글자수 제한 2200
