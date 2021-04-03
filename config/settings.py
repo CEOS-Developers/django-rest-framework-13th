@@ -19,6 +19,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 with open(os.path.join(BASE_DIR, 'config/secrets.json'), 'rb') as secret_file:
     secrets = json.load(secret_file)
 
+# DB필드 : 'media/ upload_to= ' 문자열 저장
+MEDIA_URL = '/media/'
+# 저장경로 : media/ upload_to= 경로에 저장
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -33,8 +38,11 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+AUTH_USER_MODEL = 'api.Profile' # AbstractUser 상속을 위해
+
 INSTALLED_APPS = [
     'api.apps.ApiConfig',
+    'rest_framework', # json형식의 api 소통
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
