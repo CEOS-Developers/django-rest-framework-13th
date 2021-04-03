@@ -6,17 +6,17 @@ from .models import Profile, Post, Media, PeopleTag, HashTag
 class PeopleTagSerializer(serializers.ModelSerializer):  # PeopleTag model serializer
     class Meta:
         model = PeopleTag
-        fields = '__all__'  # all fields in PeopleTag model
+        fields = ["name"]
 
 
 class HashTagSerializer(serializers.ModelSerializer):  # HashTag model serializer
     class Meta:
         model = HashTag
-        fields = '__all__'  # all fields in HashTag model
+        fields = ["name"]
 
 
 class MediaSerializer(serializers.ModelSerializer):  # Media model serializer
-    peopletags = PeopleTagSerializer(many=True)  # Media - PeopleTag : ForeignKey
+    peopletags = PeopleTagSerializer(many=True, read_only=True)  # Media - PeopleTag : ForeignKey
 
     class Meta:
         model = Media
@@ -24,17 +24,17 @@ class MediaSerializer(serializers.ModelSerializer):  # Media model serializer
 
 
 class PostSerializer(serializers.ModelSerializer):  # Post model serializer
-    medias = MediaSerializer(many=True)  # Post - Media : ForeignKey
-    hashtags = HashTagSerializer(many=True)  # Post - Hashtag : ForeignKey
+    medias = MediaSerializer(many=True, read_only=True)  # Post - Media : ForeignKey
+    hashtags = HashTagSerializer(many=True, read_only=True)  # Post - Hashtag : ForeignKey
 
     class Meta:
         model = Post
-        fields = ['id', 'pub_date', 'content', 'location', 'location', 'ratio', 'comment_permission', 'medias', 'hashtags']
+        fields = ['id', 'pub_date', 'content', 'location', 'ratio', 'comment_permission', 'medias', 'hashtags']
         # all fields in Post, Media and Hashtag model
 
 
 class ProfileSerializer(serializers.ModelSerializer):  # Profile model serializer
-    posts = PostSerializer(many=True)  # Profile - Post : ForeignKey
+    posts = PostSerializer(many=True, read_only=True)  # Profile - Post : ForeignKey
 
     class Meta:
         model = Profile
@@ -43,7 +43,7 @@ class ProfileSerializer(serializers.ModelSerializer):  # Profile model serialize
 
 
 class UserSerializer(serializers.ModelSerializer):  # User model serializer
-    profile = ProfileSerializer()  # User - Profile : OneToOneField
+    profile = ProfileSerializer(read_only=True)  # User - Profile : OneToOneField
 
     class Meta:
         model = User
