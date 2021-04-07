@@ -53,6 +53,26 @@ class FollowList(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+#Follow 해당되는 것만 가져온다
+class FollowListOne(APIView):
+    def get(self, request, pk, format=None):#불러오기
+        follows = Follow.objects.get(pk=pk)
+        serializer = FollowSerializer(follows)
+        return Response(serializer.data)
+
+    def delete(self, request, pk, format=None):#삭제
+        follows = Follow.objects.get(pk=pk)
+        follows.delete()
+        return Response("delete ok", status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):#업데이트
+        follows = Follow.objects.get(pk=pk)
+        serializer = FollowSerializer(follows, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 class HeartList(APIView):
     def get(self, request, format=None):
         hearts = Heart.objects.all()
