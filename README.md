@@ -107,3 +107,190 @@
 다양한 에러를 맛 보게 되어 슬펐지만 그만큼 많이 배운 것 같아서 좋았습니다.  
 전 주차에서 직접 만든 모델을 활용하는 과제이다 보니 뭔가 만들어져가는 느낌이 들어 재밌었습니다.  
 부족한 부분을 많이 느껴 앞으로 열심히 공부해야겠다고 느꼈습니다.
+
+<hr>
+
+## 4주차 과제 (기한: 4/8 목요일까지)  
+<br>
+
+### 모든 list를 가져오는 API
+API 요청한 URL과 결과 데이터를 코드로 보여주세요!
+
+```json
+요청 URL: /api/posts
+
+[
+    {
+        "profile": 1,
+        "id": 1,
+        "pub_date": "2021-03-27T11:45:55.080266+09:00",
+        "content": "This is 1st post",
+        "location": "Seoul",
+        "ratio": "origin",
+        "comment_permission": "y",
+        "medias": [],
+        "hashtags": []
+    },
+    {
+        "profile": 1,
+        "id": 2,
+        "pub_date": "2021-03-27T11:47:49.606663+09:00",
+        "content": "This is 2nd post",
+        "location": "Busan",
+        "ratio": "square",
+        "comment_permission": "n",
+        "medias": [],
+        "hashtags": []
+    },
+    {
+        "profile": 1,
+        "id": 3,
+        "pub_date": "2021-03-27T11:48:50.818669+09:00",
+        "content": "This is 3rd post",
+        "location": "Ilsan",
+        "ratio": "origin",
+        "comment_permission": "y",
+        "medias": [],
+        "hashtags": []
+    },
+    {
+        "profile": 1,
+        "id": 4,
+        "pub_date": "2021-04-07T15:16:42.951309+09:00",
+        "content": "This is 4th post~~~",
+        "location": "Gimpo",
+        "ratio": "origin",
+        "comment_permission": "y",
+        "medias": [],
+        "hashtags": []
+    }
+]
+```
+<br>
+<br>
+
+### 특정 데이터를 가져오는 API
+API 요청한 URL과 결과 데이터를 코드로 보여주세요!
+
+```json
+요청 URL: /api/posts/1
+
+{
+    "profile": 1,
+    "id": 1,
+    "pub_date": "2021-03-27T11:45:55.080266+09:00",
+    "content": "This is 1st post",
+    "location": "Seoul",
+    "ratio": "origin",
+    "comment_permission": "y",
+    "medias": [],
+    "hashtags": []
+}
+```
+<br>
+<br>
+
+### 새로운 데이터를 생성하는 API
+요청 URL 및 body 데이터의 내용과 create된 결과를 보여주세요!
+
+```json
+요청 URL: /api/posts
+
+{
+        "profile": 2,
+        "content": "This is 5th post",
+        "location": "풍무동",
+        "ratio": "origin",
+        "comment_permission": "y",
+        "medias": [],
+        "hashtags": []
+    }
+```
+![0173](https://user-images.githubusercontent.com/78783840/113996067-c653e980-9891-11eb-8d28-04a890eb83dd.png)
+
+<br>
+<br>
+
+### 특정 데이터를 업데이트하는 API
+요청 URL 및 body 데이터의 내용과 update된 결과를 보여주세요!
+```json
+요청 URL: /api/posts/6
+
+*기존 데이터
+{
+    "profile": 2,
+    "id": 6,
+    "pub_date": "2021-04-08T17:41:43.055577+09:00",
+    "content": "This is 5th post",
+    "location": "풍무동",
+    "ratio": "origin",
+    "comment_permission": "y",
+    "medias": [],
+    "hashtags": []
+}
+
+*수정된 데이터
+{
+    "profile": 2,
+    "id": 6,
+    "pub_date": "2021-04-08T17:41:43.055577+09:00",
+    "content": "This is updated 5th post",
+    "location": "이태원",
+    "ratio": "origin",
+    "comment_permission": "n",
+    "medias": [],
+    "hashtags": []
+}
+```
+![0174](https://user-images.githubusercontent.com/78783840/113997431-18e1d580-9893-11eb-900d-7369bee331a4.png)
+
+<br>
+<br>
+
+### 특정 데이터를 삭제하는 API
+요청 URL 및 delete된 결과를 보여주세요!  
+
+![0175](https://user-images.githubusercontent.com/78783840/113997574-40d13900-9893-11eb-9e9c-8d952bf1a113.png)
+
+<br>
+<br>
+
+### 공부한 내용 정리
+새로 알게된 점, 정리 하고 싶은 개념, 궁금한점 등을 정리해 주세요  
+
+* >###HTTP REQUEST  (출처: https://blog.naver.com/lightsalt28/221591010783)
+  >GET : 요청받은 URL의 정보 검색 > 응답  
+  >POST : 요청된 자원 생성(Create)  
+  >PUT : 요청된 자원 수정(Update)  
+  >DELETE : 요청된 자원 삭제(Delete)  
+  >PATCH : 요청된 자원 일부 교체(수정)  
+  >OPTION : 웹서버에서 지원되는 메소드 종류 확인  
+  > (* HEAD 는 장고 base view에서 dispatch가 get()으로 보낸다.싫으면 head() 오버라이딩 : 무슨 말인지 다시 공부할 것)
+
+* >API view는 장고 base view의 하위 클래스이며, 차이점이 있다.
+  > * Request는 Django의 HttpRequest 인스턴스가 아닌 REST 프레임워크의 request 인스턴스가 됨
+  > * Django의 HttpResponse가 아닌 REST 프레임워크의 Response를 반환
+  > * APIException 예외케이스가 발견되면 적절한 response으로 조정됨
+  > * Incoming request를 authenticate하고, 적절한 권한 혹은 throttle(제한사항)을 체크한 후 실행함 (?)  
+  >  
+  >출처: https://velog.io/@phyyou/DRF-%EA%B3%B5%EB%B6%80%ED%95%98%EA%B8%B0-3-CBV-APIView
+
+* method 명이 해당 request 의 소문자형으로 정의해야 dispatch 가 request 를 배정할 수 있음  
+   
+
+* APIView > Mixin > generics.APIView > ViewSet 순으로 상속을 받아가며 간소화된다. (ViewSet은 CBV가 아닌 헬퍼클래스라고 한다.)   
+이 부분은 아직 공부를 많이 못하기도 했고, 각 view마다 종류와 쓰임새도 많아서 꼭 배워놔야 할 것 같다.  
+  (참고하면 좋은 : https://ssungkang.tistory.com/entry/Django-APIView-Mixins-generics-APIView-ViewSet%EC%9D%84-%EC%95%8C%EC%95%84%EB%B3%B4%EC%9E%90?category=366160)
+  
+      
+<br>
+<br>
+
+### 간단한 회고
+과제 시 어려웠던 점이나 느낀 점, 좋았던 점 등을 간단히 적어주세요!
+
+```
+처음에 작성했던 모델에 데이터를 만져보는 과정을 해보니 진짜 신기했다.  
+로컬 네트워크와 기본 어드민 템플릿에서만 데이터가 도는 게 아닌 실제 서비스에서는 어떤 과정으로 진행될 지 궁금했다.
+그리고 CBV의 종류가 정말 많고, 장고에 내장된 것과 RF에 내장된 게 각기 달라 나중에 더 깊게 개발하게 되면 이런 부분도 신경써야 할 것 같다.  
+늘 그렇지만 과제를 하면 할 수록 장고에 능숙해지려면 배워야하는 게 정말 많음을 느꼈다.
