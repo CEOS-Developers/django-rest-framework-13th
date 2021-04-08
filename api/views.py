@@ -27,12 +27,17 @@ class UserList(APIView):
 
 
 class PostList(APIView):
-    def get(self, request, format=None):
+
+    # GET REQUEST 를 받는다.
+    # Post model 의 모든 instance 를 불러오는 method
+    def get(self, request):
         posts = Post.objects.all()
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
+    # POST REQUEST 를 받는다.
+    # Post model 에 새로운 instance 를 불러오는 method
+    def post(self, request):
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
