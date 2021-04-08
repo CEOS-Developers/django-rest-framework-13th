@@ -1,7 +1,7 @@
 from rest_framework import status
 
 from .models import Post
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 
@@ -56,6 +56,13 @@ class PostList(APIView):
 
 #pk가 있는 애들
 class PostDetail(APIView):
+    # pk가 있는지 없는지 검
+    def get_object(self, pk):
+        try:
+            return Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            raise Http404사
+
     # 특정 포스트를 들고오는 API
     def get(self, request, pk):
         post = self.get_object(pk=pk)
