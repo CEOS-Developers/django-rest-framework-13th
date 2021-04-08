@@ -6,13 +6,13 @@ from .models import Profile, Post, Media, PeopleTag, HashTag
 class PeopleTagSerializer(serializers.ModelSerializer):  # PeopleTag model serializer
     class Meta:
         model = PeopleTag
-        fields = ["name"]
+        fields = ['media', "name"]
 
 
 class HashTagSerializer(serializers.ModelSerializer):  # HashTag model serializer
     class Meta:
         model = HashTag
-        fields = ["name"]
+        fields = ['post', "name"]
 
 
 class MediaSerializer(serializers.ModelSerializer):  # Media model serializer
@@ -20,7 +20,7 @@ class MediaSerializer(serializers.ModelSerializer):  # Media model serializer
 
     class Meta:
         model = Media
-        fields = ['id', 'upload', 'subs_text', 'peopletags']  # all fields in Media and PeopleTag model
+        fields = ['post', 'id', 'upload', 'subs_text', 'peopletags']  # all fields in Media and PeopleTag model
 
 
 class PostSerializer(serializers.ModelSerializer):  # Post model serializer
@@ -29,7 +29,7 @@ class PostSerializer(serializers.ModelSerializer):  # Post model serializer
 
     class Meta:
         model = Post
-        fields = ['id', 'pub_date', 'content', 'location', 'ratio', 'comment_permission', 'medias', 'hashtags']
+        fields = ['profile', 'id', 'pub_date', 'content', 'location', 'ratio', 'comment_permission', 'medias', 'hashtags']
         # all fields in Post, Media and Hashtag model
 
 
