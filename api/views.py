@@ -56,12 +56,12 @@ class PostList(APIView):
 
 #pk가 있는 애들
 class PostDetail(APIView):
-    # pk가 있는지 없는지 검
+    # pk가 있는지 없는지 검사
     def get_object(self, pk):
         try:
             return Post.objects.get(pk=pk)
         except Post.DoesNotExist:
-            raise Http404사
+            raise Http404
 
     # 특정 포스트를 들고오는 API
     def get(self, request, pk):
