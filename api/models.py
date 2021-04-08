@@ -1,8 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.db.models import CheckConstraint
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from datetime import datetime
 
 
 class CustomAccountManager(BaseUserManager):
@@ -72,7 +70,7 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, default='', related_name='posts')
     text = models.TextField(max_length=500, blank=True)
     createdDate = models.DateField(auto_now_add=True)
-    updatedDate = models.DateField(blank=True, null=True)
+    updatedDate = models.DateField(auto_now=True)
 
     def __str__(self):
         return self.text
