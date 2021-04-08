@@ -1,19 +1,11 @@
 from rest_framework import serializers
-from rest_framework.relations import StringRelatedField
-
-from .models import User, Profile, Post
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Profile  # 사용할 모델
-        fields = ['bio', 'user_id']
+from .models import User, Post
 
 
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post  # 사용할 모델
-        fields = ['text', 'user', 'createdDate', 'updatedDate']
+        fields = ['id', 'text', 'user', 'createdDate', 'updatedDate']
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
