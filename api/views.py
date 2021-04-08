@@ -1,9 +1,18 @@
+from rest_framework import status
+
 from .models import Post
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from .serializers import PostSerializer
 
+from django.http import HttpResponse
+from django.views import View
+#FBV
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+#CBV
+from .serializers import PostSerializer
+from rest_framework.views import APIView
 
 @csrf_exempt
 def post_list(request):
@@ -24,3 +33,46 @@ def post_list(request):
             serializer.save()  # save to DB
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+
+class PostList(APIView):
+    # 작성한 포스트를 모든 데이터를 가져오는 API 만들기
+    def getall(self, request, format=None):
+        post = Post.objects.all()  # get queryset of the Post
+        serializer = PostSerializer(post, many=True)  # Serialize it to python native data type
+        return Response(serializer.data)
+
+
+    #특정 포스트를 들고오는 API
+    def getpost(self, request,pk, format=None):
+        post = self.get_object(pk = pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+
+    #새로운 포스트를 create하는 api
+    def post(self, request, format=None):
+        data = request.data
+        serializer = PostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()  # save to DB
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+
+    #특정 포스트를 update하는 api
+    def update(self, request, pk, format=None):
+        post = self.get_object(pk=pk)
+        data = request.data
+        serializer = PostSerializer(post, data)
+        if serializer.is_valid():
+            serializer.save()  # save to DB
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+
+    #특정 포스트를 삭제하는 api
+    def delete(self, request, pk, format=None):
+        post = self.get_object(pk=pk)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
