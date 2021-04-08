@@ -13,7 +13,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post  # 사용할 모델
-        fields = ['text', 'user']
+        fields = ['text', 'user', 'createdDate', 'updatedDate']
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
