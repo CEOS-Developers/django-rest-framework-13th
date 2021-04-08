@@ -30,7 +30,7 @@ class PostList(APIView):
         except Post.DoesNotExist:
             return Response("post does not exist", status=status.HTTP_404_NOT_FOUND)
 
-        serializer = PostSerializer(post)  # many=True 삭제이유
+        serializer = PostSerializer(post)  # 하나의 객체만 serialize 하므로 many=True 삭제
         return Response(serializer.data)
 
     def put(self, request, pk):
