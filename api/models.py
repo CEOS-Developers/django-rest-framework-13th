@@ -34,14 +34,14 @@ class Upload_file(DateInfo):
     file = models.FileField(upload_to="uploads/")
 
     def __str__(self):
-        return self.upload + "번째 upload의 파일"
+        return str(self.upload.id) + "번째 upload의 파일"
 
 class Like(DateInfo):
-    profile = models.OneToOneField(Profile, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="likes")
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE, related_name="likes")
 
     def __str__(self):
-        return self.profile + "유저의 " + self.upload + "번 게시글 좋아요"
+        return str(self.profile.nickname) + "유저의 " + str(self.upload.id) + "번 게시글 좋아요"
 
 class Comment(DateInfo):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name="comments")
@@ -49,4 +49,4 @@ class Comment(DateInfo):
     description = models.TextField()
 
     def __str__(self):
-        return self.profile + "유저의 " + self.upload + "번 게시글 댓글"
+        return str(self.profile.nickname) + "유저의 " + str(self.upload.id) + "번 게시글 댓글"

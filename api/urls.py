@@ -1,6 +1,9 @@
 from django.urls import path
-from api import views
+from .views import UserList, UserUpload, UploadFix, UploadList
 
 urlpatterns = [
-    path('uploads/', views.upload_list)
+    path('users/', UserList.as_view()),
+    path('users/<int:pk>/uploads/', UserUpload.as_view()),
+    path('uploads/<int:pk>/', UploadFix.as_view()),
+    path('uploads/', UploadList.as_view())
 ]
