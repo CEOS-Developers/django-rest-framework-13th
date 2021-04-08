@@ -35,18 +35,12 @@ def post_list(request):
         return JsonResponse(serializer.errors, status=400)
 
 
+#pk가 없는 애
 class PostList(APIView):
     # 작성한 포스트를 모든 데이터를 가져오는 API 만들기
-    def getall(self, request, format=None):
+    def get(self, request, format=None):
         post = Post.objects.all()  # get queryset of the Post
         serializer = PostSerializer(post, many=True)  # Serialize it to python native data type
-        return Response(serializer.data)
-
-
-    #특정 포스트를 들고오는 API
-    def getpost(self, request,pk, format=None):
-        post = self.get_object(pk = pk)
-        serializer = PostSerializer(post)
         return Response(serializer.data)
 
 
@@ -60,8 +54,16 @@ class PostList(APIView):
         return Response(serializer.errors)
 
 
-    #특정 포스트를 update하는 api
-    def update(self, request, pk, format=None):
+#pk가 있는 애들
+class PostDetail(APIView):
+    # 특정 포스트를 들고오는 API
+    def get(self, request, pk, format=None):
+        post = self.get_object(pk=pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+    # 특정 포스트를 update하는 api
+    def put(self, request, pk, format=None):
         post = self.get_object(pk=pk)
         data = request.data
         serializer = PostSerializer(post, data)
@@ -70,8 +72,7 @@ class PostList(APIView):
             return Response(serializer.data)
         return Response(serializer.errors)
 
-
-    #특정 포스트를 삭제하는 api
+    # 특정 포스트를 삭제하는 api
     def delete(self, request, pk, format=None):
         post = self.get_object(pk=pk)
         post.delete()

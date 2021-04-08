@@ -5,7 +5,7 @@ from .models import Post, PostComment
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostComment
-        fields = '__all__'
+        fields = ['post', 'user']
 
 
 class PostSerializer(serializers.ModelSerializer):
