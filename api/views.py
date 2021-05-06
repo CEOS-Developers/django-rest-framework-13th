@@ -1,9 +1,18 @@
+from rest_framework import status
+
 from .models import Post
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
-from .serializers import PostSerializer
 
+from django.http import HttpResponse
+from django.views import View
+#FBV
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+#CBV
+from .serializers import PostSerializer
+from rest_framework.views import APIView
 
 @csrf_exempt
 def post_list(request):
@@ -24,3 +33,54 @@ def post_list(request):
             serializer.save()  # save to DB
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
+
+
+#pk가 없는 애
+class PostList(APIView):
+    # 작성한 포스트를 모든 데이터를 가져오는 API 만들기
+    def get(self, request):
+        post = Post.objects.all()  # get queryset of the Post
+        serializer = PostSerializer(post, many=True)  # Serialize it to python native data type
+        return Response(serializer.data)
+
+
+    #새로운 포스트를 create하는 api
+    def post(self, request):
+        data = request.data
+        serializer = PostSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()  # save to DB
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+
+#pk가 있는 애들
+class PostDetail(APIView):
+    # pk가 있는지 없는지 검사
+    def get_object(self, pk):
+        try:
+            return Post.objects.get(pk=pk)
+        except Post.DoesNotExist:
+            raise Http404
+
+    # 특정 포스트를 들고오는 API
+    def get(self, request, pk):
+        post = self.get_object(pk=pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+    # 특정 포스트를 update하는 api
+    def put(self, request, pk):
+        post = self.get_object(pk=pk)
+        data = request.data
+        serializer = PostSerializer(post, data)
+        if serializer.is_valid():
+            serializer.save()  # save to DB
+            return Response(serializer.data)
+        return Response(serializer.errors)
+
+    # 특정 포스트를 삭제하는 api
+    def delete(self, request, pk):
+        post = self.get_object(pk=pk)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
