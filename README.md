@@ -173,7 +173,7 @@ class Comment(Base):
     def __str__(self):
         return '{} : {}'.format(self.commenter, self.text)
 ```
-![img.png](media/image/img.png)
+![img](https://user-images.githubusercontent.com/77239220/113486360-3ad30500-94ed-11eb-916d-e6e29204fb17.png)
 
 ### 모든 list를 가져오는 API
 - URL: api/posts/
@@ -328,3 +328,159 @@ class PostSerializer(serializers.ModelSerializer):
 
 ### 간단한 회고
 1. 재밌었다!! 모델링에 비해 수월하게 끝낸 것 같아 기분이 좋다ㅜㅜ 
+<<<<<<< HEAD
+
+---
+---
+
+## 4주차 과제 (기한: 4/8 목요일까지)
+### 모든 list를 가져오는 API
+- URL: api/users/
+- Method: GET
+```json
+[
+    {
+        "user": 1,
+        "nickname": "yew0n_derful",
+        "website": "https://velog.io/@julia",
+        "bio": "나는야 슈퍼유저",
+        "follower": [],
+        "following": [
+            {
+                "follower": 1,
+                "following": 2
+            }
+        ],
+        "likes": [
+            {
+                "liker": 1,
+                "post": 3
+            }
+        ]
+    },
+    {
+        "user": 2,
+        "nickname": "in_young912",
+        "website": "https://youtube.com/",
+        "bio": "Life Science",
+        "follower": [
+            {
+                "follower": 1,
+                "following": 2
+            }
+        ],
+        "following": [],
+        "likes": [
+            {
+                "liker": 2,
+                "post": 3
+            }
+        ]
+    },
+    {
+        "user": 3,
+        "nickname": "jay_jhyunl",
+        "website": "https://www.google.com/",
+        "bio": "소개입니다",
+        "follower": [],
+        "following": [],
+        "likes": [
+            {
+                "liker": 3,
+                "post": 1
+            }
+        ]
+    }
+]
+```
+
+### 특정 데이터를 가져오는 API
+- URL: api/users/1/
+- Method: GET
+
+```json
+{
+    "user": 1,
+    "nickname": "yew0n_derful",
+    "website": "https://velog.io/@julia",
+    "bio": "나는야 슈퍼유저",
+    "follower": [],
+    "following": [
+        {
+            "follower": 1,
+            "following": 2
+        }
+    ],
+    "likes": [
+        {
+            "liker": 1,
+            "post": 3
+        }
+    ]
+}
+```
+
+### 새로운 데이터를 생성하는 API
+- URL: api/users/
+- Method: POST
+- Body: 
+```json
+{
+    "user": 4,
+    "nickname": "test_user",
+    "website": null,
+    "bio": "곧 삭제될 유저 프로필입니다.",
+    "follower": [],
+    "following": [],
+    "likes": []
+}
+```
+
+### 특정 데이터를 업데이트하는 API
+- URL: api/users/4/
+- Method: PUT
+- Body: 
+```json
+{
+    "user": 4,
+    "nickname": "test_user",
+    "website": "http://naver.com/",
+    "bio": "곧 삭제될 유저 프로필입니다.",
+    "follower": [],
+    "following": [],
+    "likes": []
+}
+```
+
+### 특정 데이터를 삭제하는 API
+- URL: api/users/4/
+- Method: DELETE
+<img width="639" alt="user_delete" src="https://user-images.githubusercontent.com/77239220/113993651-a4f1fe00-988f-11eb-8d09-29bf375a102c.PNG">
+
+### 공부한 내용 정리
+- 코드리뷰를 하며 알게된 것들
+  1. get_object 함수 정의 (객체가 존재하지 않으면 에러 발생시키기 위해)
+     - 데이터를 요청하기 전에 존재유무를 먼저 파악할 수 있고 + 나중에 객체를 불러올 때 코드도 깔끔해짐
+        ```python
+            def get_object(self, pk):
+                try:
+                    return Post.objects.get(pk=pk)
+                except Profile.DoesNotExist:
+                    raise Http404
+        ```
+   2. format=None / 
+       urlpatterns = format_suffix_patterns(urlpatterns, allowed=['json', 'html'])
+       - localhost:8000/api/users.json 과 같이 포맷 접미사 표현 가능
+
+- Post, Get, Put, Delete
+- FBV와 CBV
+
+|비교|FBV|CBV|
+|---|---|---|
+|선언|@api_view|APIView|
+|메소드|데코레이터 안, if문|클래스 내에 함수 정의|
+
+### 간단한 회고
+CRUD가 간단하게 구현되는 걸 보고 신기했다. 
+이전 프로젝트들 진행할 때는 FBV만 사용해봤었는데 CBV도 알게 되어 좋았고, 특히 장고 DRF가 제공하는 APIView를 써보니 굉장히 편리했다.
+REST api에 대해 더 공부해야겠다.
