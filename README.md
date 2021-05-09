@@ -156,3 +156,85 @@ REST API에서 혼동을 주지 않기 위해 URI 경로의 마지막에는 슬�
 
 ### 간단한 회고
 처음에 FBV로 하다가, CBV로도 해보면서 이 부분에 대해 정확히 공부를 해야겠다고 생각했습니다. <br>빨리 프론트와 같이 협업하면서 REST API를 사용해보고 싶습니다.
+
+## 4주차 과제 (기한: 4/8 목요일까지)
+### 모든 list를 가져오는 API
+* URL
+```python
+127.0.0.1:8000/api/follows
+```
+* 결과 데이터
+```python
+[
+    {
+        "id": 1,
+        "following": 1,
+        "followed": 2
+    },
+    {
+        "id": 4,
+        "following": 2,
+        "followed": 1
+    }
+]
+```
+
+### 특정 데이터를 가져오는 API
+* URL
+```python
+127.0.0.1:8000/api/follows/4
+```
+* 결과 데이터
+```python
+{
+    "id": 4,
+    "following": 2,
+    "followed": 1
+}
+```
+
+### 새로운 데이터를 생성하는 API
+* URL
+```python
+127.0.0.1:8000/api/follows
+```
+* body 데이터의 내용
+```python
+{
+    "following": 6,
+    "followed": 1
+}
+```
+* create된 결과<br>
+![image](https://user-images.githubusercontent.com/63651422/113921579-252d4a80-9821-11eb-8d8c-c289dd984fe3.png)
+
+### 특정 데이터를 업데이트하는 API
+* URL
+```python
+127.0.0.1:8000/api/follows/1
+```
+* body 데이터의 내용
+```python
+{
+    "following": 1,
+    "followed": 6
+}
+```
+* update된 결과<br>
+![image](https://user-images.githubusercontent.com/63651422/113921197-a9cb9900-9820-11eb-9cc8-6cb777514f74.png)
+
+
+
+### 특정 데이터를 삭제하는 API
+* URL
+```python
+127.0.0.1:8000/api/follows/4
+```
+* delete된 결과<br>
+![image](https://user-images.githubusercontent.com/63651422/113920347-9e2ba280-981f-11eb-97b3-af6594f98f65.png)
+
+### 공부한 내용 정리
+GET, POST, DELETE, PUT 방식에 대해서 알게되었습니다. 이외에도 다른 HTTP 메소드들에 대해서도 살펴보았습니다.
+
+### 간단한 회고
+url을 여러가지로 만들지 않고, 하나의 url에서 여러가지 기능들을 처리하는게 정말 편리했습니다. rest api에 대해 더 깊게 공부해야겠다는 생각을 했습니다.

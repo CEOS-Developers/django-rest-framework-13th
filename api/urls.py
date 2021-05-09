@@ -6,5 +6,6 @@ urlpatterns = [
     path('posts', views.PostList.as_view()),
     path('files', views.FileList.as_view()),
     path('follows', views.FollowList.as_view()),
+    path('follows/<int:pk>', views.FollowListOne.as_view()),
     path('hearts', views.HeartList.as_view()),
 ]
