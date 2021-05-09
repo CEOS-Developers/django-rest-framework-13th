@@ -144,3 +144,147 @@ class PostSerializer(serializers.ModelSerializer):
 결과 
 ![postmanResult](./readmeImg/postmanResult.JPG)
 
+
+##4주차 과제 
+
+```djangotemplate
+#urls.py
+urlpatterns = [
+    path('posts/', views.PostListAll.as_view()),
+    path('posts/<int:pk>/', views.PostList.as_view()),
+    path('users/', views.UserListAll.as_view()),
+    path('users/<int:pk>/', views.UserList.as_view()),
+]
+```
+###모든 list를 가져오는 API
+- http://127.0.0.1:8000/api/users/ GET 요청 시, json 결과
+```json
+[
+    {
+        "username": "jjigae",
+        "password": "1234",
+        "email": "jjigae@ex.com",
+        "posts": [
+            {
+                "id": 6,
+                "text": "jiggae's first post",
+                "user": 1,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-04-08"
+            },
+            {
+                "id": 8,
+                "text": "jjigae's second post",
+                "user": 1,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-04-08"
+            }
+        ]
+    },
+    {
+        "username": "noonna",
+        "password": "1234",
+        "email": "noonna@ex.com",
+        "posts": [
+            {
+                "id": 7,
+                "text": "noonna's first post",
+                "user": 2,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-04-08"
+            }
+        ]
+    }
+]
+```
+
+
+###특정 데이터를 가져오는 API
+- http://127.0.0.1:8000/api/users/1/ GET 요청 시, json 결과
+```json
+{
+    "username": "jjigae",
+    "password": "1234",
+    "email": "jjigae@ex.com",
+    "posts": [
+        {
+            "id": 6,
+            "text": "jiggae's first post",
+            "user": 1,
+            "createdDate": "2021-04-08",
+            "updatedDate": "2021-04-08"
+        },
+        {
+            "id": 8,
+            "text": "jjigae's second post",
+            "user": 1,
+            "createdDate": "2021-04-08",
+            "updatedDate": "2021-04-08"
+        }
+    ]
+}
+```
+
+###새로운 데이터를 생성하는 API
+![createResult](./readmeImg/createResult.JPG)
+
+http://127.0.0.1:8000/api/posts/ GET 결과 (id 9 post 생성)
+```json
+
+[
+    {
+        "id": 6,
+        "text": "jiggae's first post",
+        "user": 1,
+        "createdDate": "2021-04-08",
+        "updatedDate": "2021-04-08"
+    },
+    {
+        "id": 7,
+        "text": "noonna's first post",
+        "user": 2,
+        "createdDate": "2021-04-08",
+        "updatedDate": "2021-04-08"
+    },
+    {
+        "id": 8,
+        "text": "jjigae's second post",
+        "user": 1,
+        "createdDate": "2021-04-08",
+        "updatedDate": "2021-04-08"
+    },
+    {
+        "id": 9,
+        "text": "noona's second post",
+        "user": 2,
+        "createdDate": "2021-04-08",
+        "updatedDate": "2021-04-08"
+    }
+]
+```
+###특정 데이터를 업데이트하는 API
+![putResult](./readmeImg/putResult.JPG)
+```json
+{
+    "id": 9,
+    "text": "noona's second post_modify",
+    "user": 2,
+    "createdDate": "2021-04-08",
+    "updatedDate": "2021-04-08"
+}
+```
+
+###특정 데이터를 삭제하는 API
+![deleteResult](./readmeImg/deleteResult.JPG)
+
+id=9 post DELETE 후 http://127.0.0.1:8000/api/posts/9/ 요청 시, json 결과
+```json
+"post does not exist"
+```
+
+##공부한 내용 정리
+get(특정 데이터만), put, delete 시에 하나의 데이터만 다루기 때문에 serializer를 instance화 할 때 many=True는 사용하면 안됨
+ex) serializer = PostSerializer(post)
+
+##간단한 회고
+리뷰해주시는 분 시험 화이티잉ㅇ~~ 과제도 화이티이잉~~
