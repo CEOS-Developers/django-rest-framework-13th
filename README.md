@@ -6,7 +6,6 @@
 
 #### **모델 설명**
 
-!\[img.png\](img.png)  
 인스타그램에 대해 본인이 작성한 모델들에 대한 설명과 모델 간의 관계 등을 적어주세요!  
 
 
@@ -236,6 +235,222 @@ Node JS를 할때, 매번 필요한 모듈을 설치해야 해서 화가 날때,
 
 어서 장고를 익혀 장고가 어느 부분에서 더 편한건지를 깨닫고 싶다.
 
+---
+#Week 4 DRF2: API View
+
+
+## 1\. Postman 
+
+### 1.1 Postman 이란
+```
+A powerful GUI platform to make your API development faster & easier, 
+from building API requests through testing, documentation and sharing.
+```
+즉, API request를 만들어서 Api를 테스트 해볼 수 있는 프로그램이다.
+
+포스트 맨을 사용하기 위해선 노트북에 설치 해주는 게 간단한데, (굳이 설치 안하고 웹페이지에서도 할 수는 있다. )
+
+설치는 다음 링크에서 하면 된다. 
+
+[www.postman.com/downloads/]
+
+### 1.2 Postman 사용하기 with Django
+
+####1.2.1  Postman 세팅하기
+
+처음 포스트맨을 설치한 후, Sign in을 하면 다음과 같이 뜨는데, 여기서 Create New 버튼을 눌러 새로운 request를 만들어 준다. 
+
+이후 create a request를 정상적으로 하였다면, 다음과 같은 화면을 볼 수 있다. 
+우선 1번 칸에는 method를 정의하고 URL를 넣을 수 있다. 
+여기서 method란 get, post, delete등을 말하며, URL은 보낼 위치의 주소를 말한다.
+로컬로 개발을 하였다면, 내가 설정한 주소를 넣으면 되고, 외부 주소로 보내고 싶다면 관리자 도구로 주소를 확인할 수 있다.
+
+2) 
+
+쿼리를 쏘는 곳이다.
+
+즉 여기에 x = 10, y= 20 이라는 정보를 담아 보내면, ?x=10&&y=20 이런식으로 주소 옆에 붙어서 데이터가 날라간다. 
+다시 말하면 공개되어 데이터를 보내므로 보안에 취약할 수 있다. 
+특정 데이터를 가지고오는 get method에 적합하다. 
+
+3) 
+
+Body로 정보를 담아 보내는 곳이다. 
+2)에서와 같이 여기에 x= 10, y= 20이라는 정보를 담아 보내면 숨겨져서 보내지게 되므로 쿼리보다 조금 안정성이 보장된 api 전송 방식이다. 
+post method에서 주로 사용하다. 
+
+####1.2.2  Django에서 api 세팅하기
+
+우선 포스트맨에서 로컬로 주소를 쏘기 위해 포트 번호를 설정해주어야 한다. 
+다음과 같은 명령어를 통해 로컬 서버를 켜주자.
+
+```
+python manage.py runserver 0.0.0.0:8000
+```
+
+여기서 난 다음과 같은 오류가 떴는데
+
+```
+Invalid HTTP_HOST header: '0.0.0.0:3000'. You may need to add '0.0.0.0' to ALLOWED_HOSTS.
+```
+
+setting.py 에 들어가 ALLOWED\_HOSTS = \["0.0.0.0"\]을 추가하니 간단히 해결되었다.
+
+무튼 이렇게 서버를 켜준 뒤, postman으로 돌아가서 URL 부분에
+0.0.0.0:8000/내가 설정한 url 
+이렇게 넣어둔 뒤 send 등을 해주면 된다. 
+
+####1.2.3  Django에서 api request 메소드 작성하기
+
+#### **views.py**
+
+views.py는 URL에서 불러지는 함수가 정확히 어떤 행동을 해야하는지를 모아둔 파일이라고 생각하면 된다. 
+tistory로 예를 들자면, 내가 gimkuku0708.tistory.com/20 이라는 url로 method GET을 보냈으면,
+20번째 게시글이 들어와야 한다. 
+
+이때, views.py 에서는 def get 일때 pk가 20번째 인 게시글을 찾고, 이를 return 해주는 함수가 적혀있다.   
+
+
+나는 장고의 클래스 기반 뷰(CBV)를 사용하여 함수를 정의하였다. 
+CBV는 django.views.View를 상속받아서 생성하며, request 명과 클래스 내 method 명이 같다는 특징이 있다. 
+예를 들어 내가 포스트 맨을 통해 post request를 보내면 Class 내의 post method가 실행되는 것이다. 
+
+내가 작성한 예시를 보자.
+
+
+```
+class PostDetail(APIView):
+
+    # 특정 포스트를 들고오는 API
+    def get(self, request, pk):
+        post = self.get_object(pk=pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+
+    # 특정 포스트를 삭제하는 api
+    def delete(self, request, pk):
+        post = self.get_object(pk=pk)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+```
+
+다음과 같이 적었을 때, 이는 PostDetail이라는 클래스를 사용한 url이 method get을 하면,
+특정 PK를 찾은 후, 그 data를 serializer 하여 return을 해준다는 것을 알 수 있다. 
+
+여기서 PostSerializer란, 간단하게 파이썬 data를 JSON으로 보내는 과정이라고 할 수 있는데, serializers.py 에 정의되어 있다. 
+
+#### **serializers.py**
+
+```
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = '__all__'
+```
+
+위 코드의 뜻은, Post라는 모델에 담긴 모든 필드를 리턴한다는 뜻이다. 
+
+Serializer는 다음과 같이 특정 필드만 리턴할 수도 있다. 
+
+```
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ('content', 'author')
+```
+
+#### **urls.py**
+
+위의 models와 serializers 들을 잘 적었다면, 이들을 URL 주소로 바꾸어주어야 한다.
+그 정보를 담은 곳이 바로 urls.py이다. 
+
+다음과 같이 
+
+path ('url 주소', views.내가정의한클래스.as\_view()) 를 이용하여 내가 작성한 클래스(메소드)와 URL주소를 연결시켜줄 수 있다.
+나는 특정 data를 접근해야하는 함수의 모음 (PostDetail)과 접근하지 않아도 되는 함수(PostList)
+두개의 클래스로 나누어 path를 작성하였다. 
+
+```
+from django.urls import path
+from api import views
+
+urlpatterns = [
+    path('post/', views.PostList.as_view()),
+    path('post/<int:pk>', views.PostDetail.as_view())
+    ]
+```
+
+
+#####1.2.3 Postman에서 api 쏘기
+
+url 설정까지 마쳤으면, 이제 Postman에서 api가 잘 날라오는지 확인해보면 된다!!
+
+**//URL에서 포스트는 포스팅할 때의 post 이다! 쏜다할때 post 아님 **
+
+URL : api/post/3method : GET
+내가 작성한 data들이 잘 넘어오는 모습을 볼 수 있다.
+이는 urls.py의 위 함수를 통해 views.py의 PostDetail로 넘어갔으며, PostDetail의 get method가 실행된 것이다. 
+
+```
+  path('post/<int:pk>', views.PostDetail.as_view())
+```
+
+```
+class PostDetail(APIView):
+    def get(self, request, pk):
+        post = self.get_object(pk=pk)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+```
+
+같은 방법으로 put delete를 실행해봤을 때, 모두 잘 수행됨을 알 수 있다.
+
+---
+
+
+api/post
+
+method : GET
+
+
+![img_4.png](img_4.png)
+
+
+api/post
+
+method : POST
+
+
+![img_5.png](img_5.png)
+
+아무 content도 넣지 않자 field가 필요하다고 나온다. 
 
 
 
+![img_6.png](img_6.png)
+
+body로 내용을 채워 보내자 정상적으로 보내지는 모습. 
+
+api/post/3
+
+method : GET
+
+![img_7.png](img_7.png)
+
+특정 번호를 넣어서 보내자 그 api가 날라온다. 
+
+
+
+api/post/3
+
+method : PUT
+
+![img_8.png](img_8.png)
+
+
+
+api/post/3
+
+method : DELETE
+
+![img_9.png](img_9.png)
