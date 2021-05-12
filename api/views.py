@@ -19,10 +19,10 @@ class ProfileFilter(FilterSet):
 
 
 # list, retrieve method
-class ProfileViewSet(viewsets.ModelViewSet):
+class ProfileViewSet(mixins.ListModelMixin,
+                     viewsets.GenericViewSet):
     filter_backends = [DjangoFilterBackend]
-    filterset_
-
+    filterset_fields
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
 
