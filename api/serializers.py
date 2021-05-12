@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Post
+from .models import User, Post, Profile
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -20,6 +20,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User  # 사용할 모델
         fields = ['username', 'password', 'email', 'posts']
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    profiles = PostSerializer(many=True)  # use related name
+
+    class Meta:
+        model = Profile  # 사용할 모델
+        fields = ['id','user', 'gender']
 
 
 

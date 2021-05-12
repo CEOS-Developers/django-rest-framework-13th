@@ -1,11 +1,30 @@
-from django.http import JsonResponse, Http404
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
+import mixins as mixins
+from rest_framework.mixins import ListModelMixin
 from .models import User, Profile, Post
-from .serializers import UserSerializer, PostSerializer
+from .serializers import UserSerializer, PostSerializer, ProfileSerializer
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions, status
 from rest_framework.response import Response
+from rest_framework import viewsets
+from django_filters.rest_framework import FilterSet, filters
+from django_filters.rest_framework import DjangoFilterBackend
+
+
+class ProfileFilter(FilterSet):
+    gender = filters.CharFilter(field_name='gender')
+
+    class Meta:
+        model = Profile
+        fields = ['gender']
+
+
+# list, retrieve method
+class ProfileViewSet(viewsets.ModelViewSet):
+    filter_backends = [DjangoFilterBackend]
+    filterset_
+
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
 
 
 # Create your views here.
