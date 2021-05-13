@@ -96,6 +96,7 @@ from django_filters.rest_framework import FilterSet, filters, DjangoFilterBacken
 
 class authorFilter(FilterSet):
     author_value = filters.CharFilter(method='filter_author')
+    is_good_value = filters.BooleanFilter(method='filter_is_good')
 
     class Meta:
         model = Post
@@ -103,6 +104,12 @@ class authorFilter(FilterSet):
 
     def filter_author(self, queryset, value, *args):
         return queryset.filter(author=args[0])
+
+    def filter_is_good(self, queryset, value):
+        if value == True:
+            return queryset.filter(is_good=True)
+        else :
+            return queryset.filter(is_good=False)
 
 
 # ViewSet으로 class
