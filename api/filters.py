@@ -5,7 +5,6 @@ from .models import Post, User, Profile
 
 class PostFilter(FilterSet):
     user = NumberFilter(field_name='user')
-    #is_modified = BooleanFilter(method=filter_is_modified)
 
     class Meta:
         model = Post
@@ -23,7 +22,7 @@ class ProfileFilter(FilterSet):
     def filter_bio_is_null(self,queryset,bio,value):
         filtered_set_true = queryset.filter(bio__isnull = True )
         filtered_set_false = queryset.filter(bio__isnull = False)
-        if value == True:
+        if value:
             return filtered_set_true
         else:
             return filtered_set_false
