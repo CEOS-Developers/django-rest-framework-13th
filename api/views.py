@@ -1,7 +1,6 @@
 from rest_framework import authentication, permissions, status
 from rest_framework.response import Response
 from rest_framework import viewsets
-from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .models import User, Profile, Post
@@ -21,7 +20,6 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     filter_backends = [DjangoFilterBackend]
     filterset_class = PostFilter
-
 
 
 class UserViewSet(viewsets.ModelViewSet):
