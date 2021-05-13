@@ -288,3 +288,156 @@ ex) serializer = PostSerializer(post)
 
 ##간단한 회고
 리뷰해주시는 분 시험 화이티잉ㅇ~~ 과제도 화이티이잉~~
+
+
+#6주차 과제
+
+## viewset 으로 리팩토링하기
+
+view.py
+```python
+class ProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProfileFilter
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PostFilter
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
+```
+filters.py
+```python
+class PostFilter(FilterSet):
+    user = NumberFilter(field_name='user')
+
+    class Meta:
+        model = Post
+        fields = ['user']
+
+
+class ProfileFilter(FilterSet):
+    gender = CharFilter(field_name='gender')
+    bio_is_empty = BooleanFilter(field_name='bio', method='filter_bio_is_null')
+
+    class Meta:
+        model = Profile
+        fields = ['gender']
+
+    def filter_bio_is_null(self,queryset,bio,value):
+        filtered_set_true = queryset.filter(bio__isnull = True )
+        filtered_set_false = queryset.filter(bio__isnull = False)
+        if value:
+            return filtered_set_true
+        else:
+            return filtered_set_false
+
+
+class UserFilter(FilterSet):
+    username = CharFilter(field_name='username')
+
+    class Meta:
+        model=User
+        fields = ['username']
+```
+postman 결과 
+
+http://127.0.0.1:8000/api/user/   [GET]
+
+```json
+[
+    {
+        "username": "jjigae",
+        "password": "1234",
+        "email": "jjigae@ex.com",
+        "posts": [
+            {
+                "id": 6,
+                "text": "jjigae's first post modify",
+                "user": 1,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-05-13"
+            },
+            {
+                "id": 8,
+                "text": "jjigae's second post",
+                "user": 1,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-04-08"
+            }
+        ],
+        "profiles": {
+            "id": 1,
+            "bio": "Hi im corgi",
+            "website": "",
+            "profile_name": "",
+            "gender": "",
+            "birth": null,
+            "photo": null,
+            "user": 1
+        }
+    },
+    {
+        "username": "noonna",
+        "password": "1234",
+        "email": "noonna@ex.com",
+        "posts": [
+            {
+                "id": 7,
+                "text": "noonna's first post",
+                "user": 2,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-04-08"
+            }
+        ],
+        "profiles": {
+            "id": 2,
+            "bio": "Hi im jjigae noonna",
+            "website": "",
+            "profile_name": "jenn kim",
+            "gender": "female",
+            "birth": null,
+            "photo": null,
+            "user": 2
+        }
+    }
+]
+```
+## filter기능 구현하기
+
+postman 결과
+
+http://127.0.0.1:8000/api/profile/?gender=female   [GET]
+```json
+[
+    {
+        "id": 2,
+        "bio": "Hi im jjigae noonna",
+        "website": "",
+        "profile_name": "jenn kim",
+        "gender": "female",
+        "birth": null,
+        "photo": null,
+        "user": 2
+    }
+]
+```
+http://127.0.0.1:8000/api/profile/?gender=female&bio_is_empty=true   [GET]
+```json
+[]
+```
+### 공부한 내용 정리
+
+### 간단한 회고
+viewset 정말 최고.. 만만세다. modelviewset 외에도 다양한 viewset의 종류와 쓰임에 대해 더 공부해봐야겠다.  
+쿼리문을 다루는 것이 백엔드에서 굉장히 중요하다고 매번 느끼는데 매번 기억이 안나서 구글링하는 것이 슬프다.껄껄
