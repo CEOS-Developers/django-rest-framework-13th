@@ -54,7 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profiles')
     bio = models.TextField(max_length=500, blank=True)
     website = models.TextField(max_length=100, blank=True)
     profile_name = models.CharField(max_length=32, blank=True)

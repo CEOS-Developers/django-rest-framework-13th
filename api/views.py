@@ -6,11 +6,11 @@ from rest_framework.views import APIView
 from rest_framework import authentication, permissions, status
 from rest_framework.response import Response
 from rest_framework import viewsets
-from django_filters.rest_framework import FilterSet, filters
+from django_filters import rest_framework as filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 
-class ProfileFilter(FilterSet):
+class ProfileFilter(filters.FilterSet):
     gender = filters.CharFilter(field_name='gender')
 
     class Meta:
@@ -19,27 +19,16 @@ class ProfileFilter(FilterSet):
 
 
 # list, retrieve method
-class ProfileViewSet(mixins.ListModelMixin,
-                     viewsets.GenericViewSet):
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields
+class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['gender']
 
 
-# Create your views here.
-class PostListAll(APIView):
-    def get(self, request, format=None):
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
 
 
 class PostList(APIView):
@@ -72,18 +61,9 @@ class PostList(APIView):
         return Response("Post Deleted", status=status.HTTP_204_NO_CONTENT)
 
 
-class UserListAll(APIView):
-    def get(self, request, format=None):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
 
 
 class UserList(APIView):

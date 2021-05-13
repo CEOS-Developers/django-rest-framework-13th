@@ -14,20 +14,28 @@ class PostSerializer(serializers.ModelSerializer):
         return post
 
 
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile  # 사용할 모델
+        fields = '__all__'
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        profile = Profile.objects.create(user=user_data, **validated_data)
+        profile.user_id = user_data
+        return profile
+
+
 class UserSerializer(serializers.ModelSerializer):
     posts = PostSerializer(many=True)  # use related name
+    profiles = ProfileSerializer()
 
     class Meta:
         model = User  # 사용할 모델
-        fields = ['username', 'password', 'email', 'posts']
+        fields = ['username', 'password', 'email', 'posts', 'profiles']
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-    profiles = PostSerializer(many=True)  # use related name
 
-    class Meta:
-        model = Profile  # 사용할 모델
-        fields = ['id','user', 'gender']
 
 
 
