@@ -294,3 +294,112 @@ API 요청한 URL과 결과 데이터를 코드로 보여주세요!
 로컬 네트워크와 기본 어드민 템플릿에서만 데이터가 도는 게 아닌 실제 서비스에서는 어떤 과정으로 진행될 지 궁금했다.
 그리고 CBV의 종류가 정말 많고, 장고에 내장된 것과 RF에 내장된 게 각기 달라 나중에 더 깊게 개발하게 되면 이런 부분도 신경써야 할 것 같다.  
 늘 그렇지만 과제를 하면 할 수록 장고에 능숙해지려면 배워야하는 게 정말 많음을 느꼈다.
+```
+<br>
+<br>
+
+<hr>
+
+## 5주차 과제 (기한: 5/13 목요일까지)  
+<br>
+
+### 1. Viewset으로 리팩토링하기
+
+```python
+[views.py]
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    filter_backends = [DjangoFilterBackend]
+    filter_class = PostFilter
+
+[urls.py]
+
+router = DefaultRouter()
+router.register(r'user', UserViewSet)
+router.register(r'posts', PostViewSet)
+
+urlpatterns = router.urls
+```
+![image](https://user-images.githubusercontent.com/78783840/118245066-4564bf00-b4db-11eb-9caa-8e2cccf74f5d.png)
+
+<br>
+<br>
+
+### 2. filter 기능 구현하기
+
+```python
+class PostFilter(FilterSet):
+    pub_date__gt = filters.DateFilter(field_name='pub_date', lookup_expr='gt') # 입력된 날짜 이후에 게시된 Post 필터링
+    pub_date__lt = filters.DateFilter(field_name='pub_date', lookup_expr='lt') #입력된 날짜 이전에 게시된 Post 필터링
+    pub_date__range = filters.DateFromToRangeFilter(field_name='pub_date', lookup_expr='range') #입력된 기간 내 게시된 Post 필터링
+    content__icontains = filters.CharFilter(field_name='content', lookup_expr='icontains') #입력된 값을 content field value에 갖고 있는 Post 필터링
+
+
+    class Meta:
+        model = Post
+        fields = ['profile', 'pub_date', 'content', 'location'] # 해당 Field에 대해 lookup_expr = 'exact' 필터링
+
+```
+![image](https://user-images.githubusercontent.com/78783840/118245178-6f1de600-b4db-11eb-9ebc-5d66c157450d.png)
+![image](https://user-images.githubusercontent.com/78783840/118245247-88269700-b4db-11eb-9834-cabdcca95d6e.png)
+
+* method를 이용한 필터링 부분이 잘 구현되지 않아서 더 공부하고 꼭 추가하려합니다.
+<br>
+<br>
+
+### (선택) permission 기능 구현하기
+시간 관리를 못해서 못했는데, 나중에라도 꼭 채워 놓을 예정입니다!
+### (선택) validation 적용하기
+시간 관리를 못해서 못했는데, 나중에라도 꼭 채워 놓을 예정입니다!
+
+<br>
+
+### 공부한 내용 정리
+새로 알게된 점, 정리 하고 싶은 개념, 궁금한점 등을 정리해 주세요  
+
+* >###Router
+  >* Router:   
+     Request를 약속된 논리에 따라 URL을 자동적으로 결정하고 매핑하며, viewset의 기본적인 action을 실행함 
+  >* router.register:  
+     URL접두어인 prefix와 viewset을 필수 인자로 받음  
+  >* basename:  
+   viewset의 attribute로 URLname을 결정함. 설정되지 않으면 viewset의 queryset attribute를 기반으로 자동으로 결정됨  
+  > * DefaultRouter : https://www.django-rest-framework.org/api-guide/routers/#defaultrouter  
+  > * 참고:  
+  >   * https://www.django-rest-framework.org/api-guide/routers/#routers  
+  >   * https://kimdoky.github.io/django/2018/07/08/drf-Routers/
+  
+
+* >###FilterSet
+  >* filter:   
+     queryset을 필터링하며, 'field_name'과 'lookup_expr'을 인자로 받음
+  >* Field lookups:   
+     QuerySet method인 filter(), exclude(), get()의 인자로 사용되며 특정 instances를 호출하기 위한 조건?이 된다.
+  > * method:  
+   filter의 optional argument로 직접 정의한 메써드로 필터링
+  >* types:  
+     field의 종류에 따라 그에 맞는 filter를 사용해야 함(ex. CharFilter, BooleanFilter 등)
+  >* FilterSet의 Meta에 지정된 fields 들은 기본적으로 lookup_expr = 'exact'  
+  >* FK관계에 있는 모델의 필드를 쓰려면 __을 사용한다.
+  >* 참고:  
+  >   * Field lookups: https://docs.djangoproject.com/en/3.2/ref/models/querysets/#field-lookups  
+  >   * https://kimdoky.github.io/django/2018/07/08/drf-Routers/
+
+      
+<br>
+<br>
+
+### 간단한 회고
+과제 시 어려웠던 점이나 느낀 점, 좋았던 점 등을 간단히 적어주세요!
+
+
+이번 주차 과제가 장고에서 정말 중요한 내용을 다룬다는 생각이 들었다.
+그래서인지 3,4번 과제인 permission과 validation을 못해서 너무 아쉬웠고 꼭 해봐야겠다.
+method를 이용해 최근 12시간 내 등록된 post가 나오는 filerting을 구현하고 싶었는데 애를 많이 먹고 실패했다.  
+혹시 일요일 스터디까지 내가 해결을 못하면 CustomLookup을 만들어야 하는 것인 지 여쭙고 싶어용.
