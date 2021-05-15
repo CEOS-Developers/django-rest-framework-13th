@@ -236,7 +236,7 @@ Node JS를 할때, 매번 필요한 모듈을 설치해야 해서 화가 날때,
 어서 장고를 익혀 장고가 어느 부분에서 더 편한건지를 깨닫고 싶다.
 
 ---
-#Week 4 DRF2: API View
+# Week 4 DRF2: API View
 
 
 ## 1\. Postman 
@@ -454,3 +454,199 @@ api/post/3
 method : DELETE
 
 ![img_9.png](img_9.png)
+
+---
+# Week 5 ViewSet-Filter-Permission-Validation
+
+## 1\. ViewSet 
+
+[https://www.django-rest-framework.org/api-guide/viewsets/](https://www.django-rest-framework.org/api-guide/viewsets/)
+
+
+#### 1.1 ViewSet이란
+
+View 들의 집합
+
+Django REST Framework 에서 여러가지 API를 통합하여 하나의 Set으로 제공한다. 
+
+#### 1.2 ViewSet으로 refactoring하기
+
+-   과거의 CBV 방법
+    -   참고 : [https://gimkuku0708.tistory.com/37](https://gimkuku0708.tistory.com/37)
+    -   함수 정의를 통해 get, post 함수를 직접 정의해주어야 한다. 
+    -   List와 Detail class를 나눠주어야 한다. 
+
+```
+class PostList(APIView):
+     # 작성한 포스트를 모든 데이터를 가져오는 API 만들기
+     def get(self, request):
+         post = Post.objects.all()  # get queryset of the Post
+         serializer = PostSerializer(post, many=True)  # Serialize it to python native data type
+         return Response(serializer.data)
+
+     #새로운 포스트를 create하는 api
+     def post(self, request):
+         data = request.data
+         serializer = PostSerializer(data=data)
+         if serializer.is_valid():
+             serializer.save()  # save to DB
+             return Response(serializer.data)
+         return Response(serializer.errors)
+```
+
+-   ViewSet 방법 
+    -   mixins 와 viewsets를 상속받아서 적용
+    -   함수를 따로 만들지 않아도 get post 등의 함수가 구현되어 있음
+
+```
+class PostViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+```
+
+> 여기서 잠깐?  
+>   
+> **1\. Mixins 란 :** 특정한 클래스에 상속을 통해 기능을 추가하는 것.   
+> rest\_framework.mixins 에는 기능들이 미리 구현이 되어 있음  
+> CreateModelMixin :  .create(request, \*args, \*\*kwargs) method  
+> ListModelMixin :  .list(request, \*args, \*\*kwargs) method  
+> RetrieveModelMixin : .retrieve(request, \*args, \*\*kwargs) method  
+> UpdateModel : .update(request, \*args, \*\*kwargs) method  
+> MixinDestroyModelMixin : .destroy(request, \*args, \*\*kwargs) method  
+>   
+> **2\. ViewSet의 종류**  
+> GenericViewSet : 기본적인 종류만 제공(get\_object, get\_queryset 등)  
+> \-> 사용을 할 때, mixin을 오버라이딩 하거나 명시적으로 함수를 정의해주어야 함.   
+> ModelViewSet : action이 제공됨 ( .list(), .retrieve(), .create(), .update())  
+> ReadOnlyModelViewSet : read-only인 action이 제공됨 (.list() , .retrieve()) 
+
+즉, 단순히 ViewSet과 Mixin을 상속받는 것으로 post get 등의 함수가 구현된다. 
+
+내가 사용한 mixins는 ListModelMixin인데, 이는 쿼리셋을 list 형태로 반환해주는 함수이다.
+
+## 2\. Filter
+
+[https://django-filter.readthedocs.io/en/latest/ref/filters.html#filter-method](https://django-filter.readthedocs.io/en/latest/ref/filters.html#filter-method)
+
+#### 2.1 FilterSet란 
+
+> filtering 작업( queryset에서 특정 queryset을 고르는 작업 ) 을 손쉽게 사용하도록 DRF(Django REST Framework)에서 제공하는 속성.
+
+클라이언트가 접근하는 API url에 붙은 query parameter을 자동으로 필터의 옵션으로 인식하고 필터링을 함. 
+
+#### 2.2 FilterSet 사용 방법
+
+-   class Meta : 
+    -   filterable한 모델 정의
+    -   사용할 필드 정의
+    -   Disable fields : exclude
+    -   Ordering : order\_by
+    -   Group fields : together
+
+FilterSet class Meta 예시 : 
+
+```
+import django_filters
+
+class PostFilter(django_filters.FilterSet):
+    class Meta:
+        model = Post
+        fields = ['author', 'content', 'upload_date']
+        order_by = ['upload_date']
+```
+
+-   filter method 사용하기
+    -   filtering 되는 data의 형식에 따라 다양한 filter가 존재한다. ( Charfilter, Booleanfilter 등 )
+    -   자주 사용하는 argument
+        1.  name : model 필드 이름을 필터링 
+        2.  lookup\_expr : 필터링 할 때 필드를 가져옴\_\_구문을 이용하여 model 필드를 필터링할 수 있다. (ex : year\_\_gt)
+
+Filter method 예시 : 
+
+```
+class F(FilterSet):
+    id__in = NumberInFilter(field_name='id', lookup_expr='in')
+
+    class Meta:
+        model = User
+```
+
+-   customized filter method 사용하기
+    -   사용자는 method를 이용하여 filter 방법을 customizing 할 수 있다.   
+        1.  output에 따라 filter 선택
+        2.  변수 = 선택한 filter(method = "사용자method이름")
+        3.  def 사용자method이름(params): 로 정의
+
+Custom Filter method 예시 : 
+
+```
+class PostFilter(FilterSet):
+    author_value = filters.CharFilter(method='filter_author')
+    is_good_value = filters.BooleanFilter(method='filter_is_good')
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+
+    def filter_author(self, queryset, value, *args):
+        return queryset.filter(author=args[0])
+
+    def filter_is_good(self, queryset, value):
+        if value == True:
+            return queryset.filter(is_good=True)
+        else:
+            return queryset.filter(is_good=False)
+```
+
+## 3\. Permission
+
+[https://www.django-rest-framework.org/api-guide/permissions/](https://www.django-rest-framework.org/api-guide/permissions/)
+
+#### 3.1 Permission이란
+
+> 사용자가 해당 작업을 할 권한이 있는지를 검사하는 것.  
+> 모델의 제일 처음에 작동됨. 
+
+즉 어떠한 사용자가 API에 접근해 특정 작업을 수행하려 할 때, request에 담겨오는 user의 정보에 따라 작업의 권한을 줄지 말지 결정하는 것.
+
+#### 3.2 DRF에서 Permission 사용하기 
+
+-   AllowAny (Default) : 무조건 view 호출 허용
+-   IsAuthenticated : 인증된 user의 호출만 허용
+-   IsAuthenticatedOrReadOnly : 인증된 user의 호출 허용, 비인증 user는 읽기 권한만 허용
+
+ViewSet 내부의 permission\_classes 에 추가해주면 됨.
+
+Permission 예시 :
+
+```
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
+class PostViewSet(ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+    ]
+```
+
+## 4\. Validation
+
+#### 4.1 Validation이란
+
+> 들어온 data가 형식에 맞는지에 대한 유효성 검사를 하는 것.
+
+Validation의 경우 ModeSerializer를 사용하면 자동으로 처리가 가능하다.
+
+
+---
+### 배우고 느낀점
+장고에는 모든게 모듈화 되어있고 모든 내용이 저장되어 있어서 사용하기 간편하다했었는데,
+그 전에는 왜 이런 말을 하는지 몰랐었다.. 하지만 ViewSet을 만난 순간.. 이런게 프로그래밍인가? 싶었다!
+완전 간편한... 엄청난... 그런 생각이 들었다.
+
+다만, ViewSet으로 모두 모듈화가 되어있고 추가도 Mixins를 이용해서 한다면 매번 할 때마다 내가 구현해야 하는 범위와
+상속으로 사용할 수 있는 부분의 경계가 모호할 것 같다는 생각이 들었다. 
+
+더 공부를 해보고 프로젝트를 한번 해봐야 Viewset을 완전히 이해 할 것 같다!

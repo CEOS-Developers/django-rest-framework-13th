@@ -17,6 +17,8 @@ from rest_framework.views import APIView
 from rest_framework import viewsets
 # Filter
 from django_filters.rest_framework import FilterSet, filters, DjangoFilterBackend
+# Permission
+from rest_framework import permissions
 
 
 #
@@ -92,9 +94,7 @@ from django_filters.rest_framework import FilterSet, filters, DjangoFilterBacken
 
 
 # Filter
-
-
-class authorFilter(FilterSet):
+class PostFilter(FilterSet):
     author_value = filters.CharFilter(method='filter_author')
     is_good_value = filters.BooleanFilter(method='filter_is_good')
 
@@ -108,7 +108,7 @@ class authorFilter(FilterSet):
     def filter_is_good(self, queryset, value):
         if value == True:
             return queryset.filter(is_good=True)
-        else :
+        else:
             return queryset.filter(is_good=False)
 
 
@@ -117,4 +117,9 @@ class PostViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = PostSerializer
     queryset = Post.objects.all()
     filter_backends = [DjangoFilterBackend]
-    filterset_class = authorFilter
+    filterset_class = PostFilter
+
+
+# Permission
+class UserUpdateViewSet(mixins.UpdateModelMixins, viewsets.GenericViewSet):
+    pemission_classes = (permissions.IsAuthenticated,)
