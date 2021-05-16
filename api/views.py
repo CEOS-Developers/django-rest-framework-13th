@@ -6,8 +6,9 @@ from .serializers import PostSerializer
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-
+from rest_framework import status, viewsets
+from django_filters.rest_framework import FilterSet, filters
+from django_filters.rest_framework import DjangoFilterBackend
 # Create your views here.
 '''
 # Use CVB instead of FCV
@@ -32,6 +33,9 @@ def post_list(request):
             return JsonResponse(serializer.data, status=201)
         return JsonResponse(serializer.errors, status=400)
 '''
+
+'''
+# Use viewsets instead of APIview
 
 # def post_list(request):
 class PostList(APIView):
@@ -85,3 +89,26 @@ class PostDetail(APIView):
         post = self.get_object(pk)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+'''
+
+
+class PostFilter(FilterSet):
+    video = filters.BooleanFilter(name='is_video')
+    following = filters.CharFilter(method='filter_following_posts')
+
+    class Meta:
+        model = Post
+        fields = ['profile']
+
+    def filter_following_posts(self, queryset, name, value):
+        filtered_queryset = queryset.filter(profile__following__followers=self.request.user)
+        return filtered_queryset
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    filter_backends = [DjangoFilterBackend]
+
+
+
