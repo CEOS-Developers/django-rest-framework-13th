@@ -41,8 +41,9 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'api.Profile' # AbstractUser 상속을 위해
 
 INSTALLED_APPS = [
-    'api.apps.ApiConfig',
+    'api.apps.ApiConfig', # Api 앱 추가
     'rest_framework', # json형식의 api 소통
+    'django_filters', # filterset
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -50,7 +51,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
-
+REST_FRAMEWORK = {  # filterset
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

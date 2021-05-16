@@ -1,9 +1,8 @@
-from django.urls import path
-from .views import UserList, UserUpload, UploadFix, UploadList
+from rest_framework import routers
+from .views import ProfileViewSet, UploadViewSet
 
-urlpatterns = [
-    path('users/', UserList.as_view()),
-    path('users/<int:pk>/uploads/', UserUpload.as_view()),
-    path('uploads/<int:pk>/', UploadFix.as_view()),
-    path('uploads/', UploadList.as_view())
-]
+router = routers.DefaultRouter()
+router.register(r'profile', ProfileViewSet)
+router.register(r'upload', UploadViewSet)
+
+urlpatterns = router.urls

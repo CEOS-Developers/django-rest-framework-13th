@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from api.models import Profile,Upload,Comment
 
 # rest_framework - RESTful한 api를 만들기 위해
@@ -13,13 +14,17 @@ class UploadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Upload
         fields = '__all__'
+    def validate(self, data):
+        if 'Test' not in data['description']:
+            raise ValidationError('Validation Error!')
+        return data
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['id', 'description']
 
-class UploadListSerializer(serializers.ModelSerializer): #like, profile fk 추가?
+class UploadListSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
