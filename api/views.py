@@ -1,28 +1,61 @@
-from django.http import JsonResponse, Http404
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.parsers import JSONParser
-from .models import User, Profile, Post
-from .serializers import UserSerializer, PostSerializer
-from rest_framework.views import APIView
 from rest_framework import authentication, permissions, status
+from rest_framework.decorators import permission_classes, api_view
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+
+from .models import User, Profile, Post
+from .serializers import UserSerializer, PostSerializer, ProfileSerializer, UserLoginSerializer
+from .filters import PostFilter, ProfileFilter, UserFilter
+from .permissions import IsAuthorOrReadonly
 
 
-# Create your views here.
-class PostListAll(APIView):
-    def get(self, request, format=None):
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class ProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProfileFilter
 
 
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PostFilter
+    permission_classes = [IsAuthorOrReadonly, ]
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+@permission_classes([AllowAny])
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    if request.method == "POST":
+        serializer = UserLoginSerializer(data=request.data)
+
+        if not serializer.is_valid(raise_exception=True):
+            return Response({"message": "Request Body Error."}, status=status.HTTP_409_CONFLICT)
+        if serializer.validated_data['username'] == "None":
+            return Response({'message': 'fail'}, status=status.HTTP_200_OK)
+
+        response = {
+            'success': 'True',
+            'token': serializer.data['token']
+        }
+        return Response(response, status=status.HTTP_200_OK)
+
+
+'''
 class PostList(APIView):
     def get(self, request, pk):
         try:
@@ -51,22 +84,9 @@ class PostList(APIView):
             return Response("post does not exist", status=status.HTTP_404_NOT_FOUND)
         post.delete()
         return Response("Post Deleted", status=status.HTTP_204_NO_CONTENT)
+'''
 
-
-class UserListAll(APIView):
-    def get(self, request, format=None):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+'''
 class UserList(APIView):
     def get(self, request, pk):
         try:
@@ -95,3 +115,4 @@ class UserList(APIView):
             return Response("user does not exist", status=status.HTTP_404_NOT_FOUND)
         user.delete()
         return Response("User Deleted", status=status.HTTP_204_NO_CONTENT)
+'''

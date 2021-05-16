@@ -288,3 +288,269 @@ ex) serializer = PostSerializer(post)
 
 ##간단한 회고
 리뷰해주시는 분 시험 화이티잉ㅇ~~ 과제도 화이티이잉~~
+
+
+#6주차 과제
+
+## viewset 으로 리팩토링하기
+
+view.py
+```python
+class ProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = ProfileSerializer
+    queryset = Profile.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProfileFilter
+
+
+class PostViewSet(viewsets.ModelViewSet):
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PostFilter
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
+```
+filters.py
+```python
+class PostFilter(FilterSet):
+    user = NumberFilter(field_name='user')
+
+    class Meta:
+        model = Post
+        fields = ['user']
+
+
+class ProfileFilter(FilterSet):
+    gender = CharFilter(field_name='gender')
+    bio_is_empty = BooleanFilter(field_name='bio', method='filter_bio_is_null')
+
+    class Meta:
+        model = Profile
+        fields = ['gender']
+
+    def filter_bio_is_null(self,queryset,bio,value):
+        filtered_set_true = queryset.filter(bio__isnull = True )
+        filtered_set_false = queryset.filter(bio__isnull = False)
+        if value:
+            return filtered_set_true
+        else:
+            return filtered_set_false
+
+
+class UserFilter(FilterSet):
+    username = CharFilter(field_name='username')
+
+    class Meta:
+        model=User
+        fields = ['username']
+```
+postman 결과 
+
+http://127.0.0.1:8000/api/user/   [GET]
+
+```json
+[
+    {
+        "username": "jjigae",
+        "password": "1234",
+        "email": "jjigae@ex.com",
+        "posts": [
+            {
+                "id": 6,
+                "text": "jjigae's first post modify",
+                "user": 1,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-05-13"
+            },
+            {
+                "id": 8,
+                "text": "jjigae's second post",
+                "user": 1,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-04-08"
+            }
+        ],
+        "profiles": {
+            "id": 1,
+            "bio": "Hi im corgi",
+            "website": "",
+            "profile_name": "",
+            "gender": "",
+            "birth": null,
+            "photo": null,
+            "user": 1
+        }
+    },
+    {
+        "username": "noonna",
+        "password": "1234",
+        "email": "noonna@ex.com",
+        "posts": [
+            {
+                "id": 7,
+                "text": "noonna's first post",
+                "user": 2,
+                "createdDate": "2021-04-08",
+                "updatedDate": "2021-04-08"
+            }
+        ],
+        "profiles": {
+            "id": 2,
+            "bio": "Hi im jjigae noonna",
+            "website": "",
+            "profile_name": "jenn kim",
+            "gender": "female",
+            "birth": null,
+            "photo": null,
+            "user": 2
+        }
+    }
+]
+```
+## filter기능 구현하기
+
+postman 결과
+
+http://127.0.0.1:8000/api/profile/?gender=female   [GET]
+```json
+[
+    {
+        "id": 2,
+        "bio": "Hi im jjigae noonna",
+        "website": "",
+        "profile_name": "jenn kim",
+        "gender": "female",
+        "birth": null,
+        "photo": null,
+        "user": 2
+    }
+]
+```
+http://127.0.0.1:8000/api/profile/?gender=female&bio_is_empty=true   [GET]
+```json
+[]
+```
+### 공부한 내용 정리
+
+JWT이용 (json web token)
+~~~
+pip install djangorestframework-jwt
+~~~
+
+jwt 이용을 위한 setting
+```python
+#settings.py
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS':
+        ('django_filters.rest_framework.DjangoFilterBackend',),
+
+    'DEFAULT_PERMISSION_CLASSES':
+        ('rest_framework.permissions.IsAuthenticated',),
+
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        ]
+}
+
+```
+- default permission class(로그인 여부확인 클래스)를 permissions.IsAuthenticated로 사용  
+- default authentication class(로그인 관련 클래스) 에 jwt사용
+  
+```python
+JWT_AUTH = {
+    'JWT_ENCODE_HANDLER':
+        'rest_framework_jwt.utils.jwt_encode_handler',
+
+    'JWT_DECODE_HANDLER':
+        'rest_framework_jwt.utils.jwt_decode_handler',
+
+    'JWT_PAYLOAD_HANDLER':
+        'rest_framework_jwt.utils.jwt_payload_handler',
+
+    'JWT_PAYLOAD_GET_USER_ID_HANDLER':
+        'rest_framework_jwt.utils.jwt_get_user_id_from_payload_handler',
+
+    'JWT_RESPONSE_PAYLOAD_HANDLER':
+        'rest_framework_jwt.utils.jwt_response_payload_handler',
+
+    'JWT_SECRET_KEY': 'SECRET_KEY',
+    'JWT_GET_USER_SECRET_KEY': None,
+    'JWT_PUBLIC_KEY': None,
+    'JWT_PRIVATE_KEY': None,
+    'JWT_ALGORITHM': 'HS256',
+    'JWT_VERIFY': True,
+    'JWT_VERIFY_EXPIRATION': True,
+    'JWT_LEEWAY': 0,
+    'JWT_EXPIRATION_DELTA': timedelta(days=30),
+    'JWT_AUDIENCE': None,
+    'JWT_ISSUER': None,
+
+    'JWT_ALLOW_REFRESH': False,
+    'JWT_REFRESH_EXPIRATION_DELTA': timedelta(days=30),
+
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+    'JWT_AUTH_COOKIE': None,
+}
+```
+
+JWT구조 : header(type, algorithm), payload(info), signature(header+payload -> hash)
+
+- 유저가 로그인했을 때 입력값이 db정보와 일치하면 JWT발급
+```python
+#serializers.py
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=64)
+    password = serializers.CharField(max_length=128, write_only=True)
+    token = serializers.CharField(max_length=255, read_only=True)
+
+    def validate(self, data):
+        username = data.get("username", None)
+        password = data.get("password", None)
+        user = authenticate(username=username, password=password)
+
+        if user is None:
+            return {
+                'username': 'None'
+            }
+        try:
+            payload = JWT_PAYLOAD_HANDLER(user)
+            jwt_token = JWT_ENCODE_HANDLER(payload)
+            update_last_login(None, user)
+        except User.DoesNotExist:
+            raise serializers.ValidationError(
+                'User with given name and password does not exists'
+            )
+        return {
+            'username': user.username,
+            'token': jwt_token
+        }
+
+```
+- 프론트가 JWT를 로컬에 저장
+- 회원인증이 필요한 요청일 때 프론트는 이 토큰값을 담아 보냄
+- 백에서 토큰 확인 후 서비스 접근 허용
+```python
+>>> payload = jwt.decode(token_str, SECRET_KEY, ALGORITHM)
+>>> payload
+
+{'user_id': 1}
+```
+쿠키/세션을 이용한 로그관리는 rest api에 적합하지 않음.(stateless 서버 : 상태저장 필요없이 요청만으로 작업 처리 가능. 서버가 더 가벼워짐!)   
++) 리액트에서 쿠키를 관리하지 않는다네욥..?!
+
+
+### 간단한 회고
+viewset 정말 최고.. 만만세다. modelviewset 외에도 다양한 viewset의 종류와 쓰임에 대해 더 공부해봐야겠다.  
+쿼리문을 다루는 것이 백엔드에서 굉장히 중요하다고 매번 느끼는데 매번 기억이 안나서 구글링하는 것이 슬프다.껄껄
