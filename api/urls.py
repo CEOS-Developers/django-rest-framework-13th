@@ -1,11 +1,13 @@
 from django.urls import path
 from api import views
+from rest_framework import routers
+from .views import *
 
-urlpatterns = [
-    path('users', views.UserList.as_view()),
-    path('posts', views.PostList.as_view()),
-    path('files', views.FileList.as_view()),
-    path('follows', views.FollowList.as_view()),
-    path('follows/<int:pk>', views.FollowListOne.as_view()),
-    path('hearts', views.HeartList.as_view()),
-]
+router = routers.DefaultRouter()
+router.register(r'user', UserViewSet)
+router.register(r'post', PostViewSet)
+router.register(r'file', FileViewSet)
+router.register(r'follow', FollowViewSet)
+router.register(r'heart', HeartViewSet)
+
+urlpatterns = router.urls

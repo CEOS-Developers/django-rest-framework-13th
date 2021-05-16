@@ -3,85 +3,46 @@ from .serializers import *
 from django.http import Http404
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import FilterSet, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Q
 
-class UserList(APIView):
-    def get(self, request, format=None):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-    def post(self, request, format=None):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserFilter(FilterSet):
+    nickname = filters.CharFilter(field_name='nickname', lookup_expr="icontains")
+    is_hy1 = filters.BooleanFilter(method='filter_is_hy1')
 
-class PostList(APIView):
-    def get(self, request, format=None):
-        posts = Post.objects.all()
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-    def post(self, request, format=None):
-        serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    class Meta:
+        model = User
+        fields = ['nickname']
 
-class FileList(APIView):
-    def get(self, request, format=None):
-        files = File.objects.all()
-        serializer = FileSerializer(files, many=True)
-        return Response(serializer.data)
-    def post(self, request, format=None):
-        serializer = FileSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def filter_is_hy1(self, queryset, name, value):
+        filtered_queryset = queryset.filter(nickname__contains="1")
+        filtered_queryset2 = queryset.filter(~Q(nickname__contains="1"))
+        if value == True:
+            return filtered_queryset
+        else:
+            return filtered_queryset2
+        
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
 
-class FollowList(APIView):
-    def get(self, request, format=None):
-        follows = Follow.objects.all()
-        serializer = FollowSerializer(follows, many=True)
-        return Response(serializer.data)
-    def post(self, request, format=None):
-        serializer = FollowSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class PostViewSet(viewsets.ModelViewSet):
+	serializer_class = PostSerializer
+	queryset = Post.objects.all()
 
-#Follow 해당되는 것만 가져온다
-class FollowListOne(APIView):
-    def get(self, request, pk, format=None):#불러오기
-        follows = get_object_or_404(Follow, pk=pk)
-        serializer = FollowSerializer(follows)
-        return Response(serializer.data)
+class FileViewSet(viewsets.ModelViewSet):
+	serializer_class = FileSerializer
+	queryset = File.objects.all()
 
-    def delete(self, request, pk, format=None):#삭제
-        follows = get_object_or_404(Follow, pk=pk)
-        follows.delete()
-        return Response("delete ok", status=status.HTTP_204_OK) #상태코드 delete에 맞게
+class FollowViewSet(viewsets.ModelViewSet):
+	serializer_class = FollowSerializer
+	queryset = Follow.objects.all()
 
-    def put(self, request, pk, format=None):#업데이트
-        follows = get_object_or_404(Follow, pk=pk)
-        serializer = FollowSerializer(follows, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class HeartList(APIView):
-    def get(self, request, format=None):
-        hearts = Heart.objects.all()
-        serializer = HeartSerializer(hearts, many=True)
-        return Response(serializer.data)
-    def post(self, request, format=None):
-        serializer = HeartSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class HeartViewSet(viewsets.ModelViewSet):
+	serializer_class = HeartSerializer
+	queryset = Heart.objects.all()

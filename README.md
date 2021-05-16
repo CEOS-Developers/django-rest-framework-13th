@@ -238,3 +238,109 @@ GET, POST, DELETE, PUT 방식에 대해서 알게되었습니다. 이외에도 �
 
 ### 간단한 회고
 url을 여러가지로 만들지 않고, 하나의 url에서 여러가지 기능들을 처리하는게 정말 편리했습니다. rest api에 대해 더 깊게 공부해야겠다는 생각을 했습니다.
+
+## 5주차 과제 (기한: 5/13 목요일까지)
+### 1. Viewset으로 리팩토링하기
+```python
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+class PostViewSet(viewsets.ModelViewSet):
+	serializer_class = PostSerializer
+	queryset = Post.objects.all()
+```
+
+### 2. filter 기능 구현하기
+```python
+class UserFilter(FilterSet):
+    nickname = filters.CharFilter(field_name='nickname', lookup_expr="icontains")
+    is_hy1 = filters.BooleanFilter(method='filter_is_hy1')
+
+    class Meta:
+        model = User
+        fields = ['nickname']
+
+    def filter_is_hy1(self, queryset, name, value):
+        filtered_queryset = queryset.filter(nickname__contains="1")
+        filtered_queryset2 = queryset.filter(~Q(nickname__contains="1"))
+        if value == True:
+            return filtered_queryset
+        else:
+            return filtered_queryset2
+        
+class UserViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = UserFilter
+```
+![image](https://user-images.githubusercontent.com/63651422/118385768-eb840680-b64c-11eb-80ad-fb29ecc0b7de.png)
+```python
+http://127.0.0.1:8000/api/user/?is_hy1=false
+```
+```python
+[
+    {
+        "id": 2,
+        "_following": [],
+        "_followed": [],
+        "_user": [
+            {
+                "id": 2,
+                "post": 1,
+                "user": 2
+            }
+        ],
+        "_author": [],
+        "nickname": "hy2",
+        "email": "hy2@naver.com",
+        "phone_number": "01022222222",
+        "password": "2222",
+        "username": "호영2",
+        "description": "나는호영2",
+        "created_at": "2021-04-01T02:33:34.230805+09:00",
+        "updated_at": "2021-04-01T02:33:34.230805+09:00"
+    },
+    {
+        "id": 6,
+        "_following": [
+            {
+                "id": 7,
+                "following": 6,
+                "followed": 1
+            }
+        ],
+        "_followed": [
+            {
+                "id": 1,
+                "following": 1,
+                "followed": 6
+            }
+        ],
+        "_user": [],
+        "_author": [],
+        "nickname": "hy5",
+        "email": "hy5@naver.com",
+        "phone_number": "01055555555",
+        "password": "5555",
+        "username": "hy5",
+        "description": "hy5",
+        "created_at": "2021-04-08T03:25:17.209385+09:00",
+        "updated_at": "2021-04-08T03:25:17.209385+09:00"
+    }
+]
+
+```
+
+```python
+http://127.0.0.1:8000/api/user/?nickname=2&is_hy1=fasle
+
+```
+![image](https://user-images.githubusercontent.com/63651422/118385802-3140cf00-b64d-11eb-96cd-71af6d2da6cc.png)
+
+
+### 과제를 하면서 알게 된 내용 & 회고
+"http://127.0.0.1:8000/api/user/?is_hy1=false"와 같이 접속했을 때 def filter_is_hy1(self, queryset, name, value):에서 parameter로 name=is_hy1, value=false가 들어갔습니다. 이를 통해 좀더 다채로운 처리가 가능할거 같고, lookup_expr의 다양한 조건을 알아두면 프로젝트할 때 도움이 많이 될 것 같습니다.
+
+from django.db.models import Q를 통해 Q객체를 써서 복잡한 질의문을 처리할 수 있어서, 이를 통해 원하는 질의문을 편하게 작성할 수 있었습니다.
